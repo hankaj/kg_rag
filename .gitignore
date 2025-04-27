@@ -1,0 +1,4 @@
+venv/*
+.env
+src/data/datasets
+__pycache__
