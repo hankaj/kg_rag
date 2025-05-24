@@ -1,4 +1,4 @@
-from typing import Dict, Any, TypedDict, Optional
+from typing import Dict, Any, TypedDict, Optional, List
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -7,21 +7,15 @@ from src.retrieval.retriever import HybridRetriever, StandardRetriever
 from src.config.settings import DEFAULT_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
 
 class QAState(TypedDict):
-    """State type for the QA graph"""
     question: str
     context: Optional[str]
     answer: Optional[str]
+    retrieved_questions: Optional[List[str]]
 
 
 class QAChain:
-    """Simple question-answering chain using LangGraph"""
     
     def __init__(self, retrieval: str = "standard", model_name: str = DEFAULT_LLM_MODEL):
-        """
-        Initialize the QA chain
-        Args:
-            model_name: Name of the LLM model to use
-        """
         self.llm = ChatOpenAI(
             model=DEFAULT_LLM_MODEL,
             temperature=0,
@@ -33,7 +27,6 @@ class QAChain:
         else:
             self.retriever = StandardRetriever()
         
-        # Set up the answering template
         qa_template = """Answer the question based only on the following context:
 {context}
 
@@ -43,73 +36,46 @@ Be as simple and concise as possible — prefer short direct answers over full e
 Answer:"""
         self.qa_prompt = ChatPromptTemplate.from_template(qa_template)
         
-        # Setup the graph
         self._setup_graph()
     
     def _setup_graph(self):
-        """Set up the simplified QA graph with nodes and edges"""
         
         def retrieve_context(state: QAState) -> Dict:
-            """Retrieve relevant documents for the question"""
-            context = self.retriever.retrieve(state["question"])
-            return {"context": context}
+            context, questions = self.retriever.retrieve(state["question"])
+            return {"context": context, "retrieved_questions": questions}
         
         def generate_answer(state: QAState) -> Dict:
-            """Generate an answer based on the context and question"""
-            # Prepare the prompt with context and question
             prompt = self.qa_prompt.invoke({
                 "context": state["context"],
                 "question": state["question"]
             })
             
-            # Generate the answer
             answer = self.llm.invoke(prompt).content
             return {"answer": answer}
         
-        # Create the graph
         graph = StateGraph(QAState)
         
-        # Add nodes - using different names than state keys
         graph.add_node("retrieval_node", retrieve_context)
         graph.add_node("generation_node", generate_answer)
         
-        # Add edges
         graph.add_edge("retrieval_node", "generation_node")
         graph.add_edge("generation_node", END)
         
-        # Set the entry point
         graph.set_entry_point("retrieval_node")
         
-        # Compile the graph
         self.graph = graph.compile()
     
     def invoke(self, input_dict: Dict[str, Any]) -> str:
-        """
-        Invoke the QA chain
-        Args:
-            input_dict: Input dictionary with 'question'
-        Returns:
-            Answer to the question
-        """
-        # Initialize state with input
         state = QAState(
             question=input_dict["question"],
             context=None,
-            answer=None
+            answer=None,
+            retrieved_questions=None
         )
         
-        # Run the graph
         result = self.graph.invoke(state)
         
-        # Return the answer
         return result
     
     def run(self, question: str) -> str:
-        """
-        Run the QA chain with a question
-        Args:
-            question: User question
-        Returns:
-            Answer to the question
-        """
         return self.invoke({"question": question})

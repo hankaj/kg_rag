@@ -40,13 +40,22 @@ def main():
     hotpotqa = load_hotpotqa_data(num_samples=args.num_samples)
     questions = hotpotqa['question']
     answers = hotpotqa['answer']
+    supporting_sentences = []
+    for facts, contex in zip(hotpotqa['supporting_facts'], hotpotqa['context']):
+        supporting_sentences_for_question = []
+        for title, sent_id in zip(facts['title'], facts['sent_id']):
+            if title in contex['title']:
+                idx = contex['title'].index(title)
+                sentence = contex['sentences'][idx][sent_id]
+                supporting_sentences_for_question.append(sentence)
+        supporting_sentences.append(supporting_sentences_for_question)
     
     print(questions)
     print(answers)
     
     evaluator = RAGEvaluator(qa_chain)
     print(f"Evaluating RAG pipeline with {args.num_samples} HotpotQA questions...")
-    results, metrics = evaluator.evaluate(questions, answers, verbose=not args.quiet)
+    results, metrics = evaluator.evaluate(questions, answers, supporting_sentences, verbose=not args.quiet)
     evaluator.print_summary(metrics)
     
     # Add metadata to results

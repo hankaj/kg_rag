@@ -5,37 +5,61 @@ from tqdm import tqdm
 
 from src.evaluation.metrics import f1_score, exact_match_score
 
+
+def calculate_retrieval_metrics(retrieved_facts: List[str], supporting_sentences: List[str]) -> Tuple[float, float, float]:
+    if not retrieved_facts or not supporting_sentences:
+        return 0.0, 0.0, 0.0
+
+    relevant_retrieved = 0
+    for sentence in supporting_sentences:
+        for fact in retrieved_facts:
+            if sentence.lower() in fact.lower():
+                relevant_retrieved += 1
+                break
+    
+    precision = relevant_retrieved / len(retrieved_facts)
+    recall = relevant_retrieved / len(supporting_sentences)
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+
+    return precision, recall, f1
+
 class RAGEvaluator:
-    """
-    Evaluator class for RAG pipeline assessment
-    """
     def __init__(self, qa_chain):
-        """Initialize with a QA chain that has a run method"""
         self.qa_chain = qa_chain
     
-    def evaluate(self, questions: List[str], answers: List[str], verbose: bool = True) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
-        """
-        Evaluate RAG pipeline with provided questions
-        Returns tuple of (results, metrics)
-        """
+    def evaluate(self, questions: List[str], answers: List[str], supporting_sentences: List[str], verbose: bool = True) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
+
         results = []
         start_time = time.time()
         
         total_f1 = 0.0
         total_em = 0
+        total_retrieval_precision = 0.0
+        total_retrieval_recall = 0.0
+        total_retrieval_f1 = 0.0
         
-        for i, (question, reference_answer) in enumerate(tqdm(zip(questions, answers))):
+        for i, (question, reference_answer, supporting_facts) in enumerate(tqdm(zip(questions, answers, supporting_sentences))):
             
             try:
                 result = self.qa_chain.run(question)
                 answer = result['answer']
                 question_type = result.get("question_type", None)
                 
+                retrieved_docs = result['context']
+                
+                # Calculate retrieval metrics
+                retrieval_precision, retrieval_recall, retrieval_f1 = calculate_retrieval_metrics(
+                    retrieved_docs, supporting_facts
+                )
+                
                 f1, precision, recall = f1_score(answer, reference_answer)
                 em = exact_match_score(answer, reference_answer)
                 
                 total_f1 += f1
                 total_em += int(em)
+                total_retrieval_precision += retrieval_precision
+                total_retrieval_recall += retrieval_recall
+                total_retrieval_f1 += retrieval_f1
                 
                 results.append({
                     "question_id": i,
@@ -46,6 +70,9 @@ class RAGEvaluator:
                     "precision": precision,
                     "recall": recall,
                     "exact_match": em,
+                    "retrieval_precision": retrieval_precision,
+                    "retrieval_recall": retrieval_recall,
+                    "retrieval_f1": retrieval_f1,
                     "success": True,
                     "question_type": question_type
                 })
@@ -71,6 +98,9 @@ class RAGEvaluator:
                     "precision": 0.0,
                     "recall": 0.0,
                     "exact_match": False,
+                    "retrieval_precision": 0.0,
+                    "retrieval_recall": 0.0,
+                    "retrieval_f1": 0.0,
                     "question_type": None,
                     "error": str(e),
                     "success": False
@@ -85,6 +115,9 @@ class RAGEvaluator:
         avg_time_per_question = total_time / len(results) if results else 0
         avg_f1 = total_f1 / num_successful if num_successful > 0 else 0
         avg_em = total_em / num_successful if num_successful > 0 else 0
+        avg_retrieval_precision = total_retrieval_precision / num_successful if num_successful > 0 else 0
+        avg_retrieval_recall = total_retrieval_recall / num_successful if num_successful > 0 else 0
+        avg_retrieval_f1 = total_retrieval_f1 / num_successful if num_successful > 0 else 0
 
         question_type_counts = Counter(
             r["question_type"] for r in results if r["success"] and r["question_type"]
@@ -98,6 +131,9 @@ class RAGEvaluator:
             "avg_time_per_question": avg_time_per_question,
             "avg_f1_score": avg_f1,
             "avg_exact_match": avg_em,
+            "avg_retrieval_precision": avg_retrieval_precision,
+            "avg_retrieval_recall": avg_retrieval_recall,
+            "avg_retrieval_f1": avg_retrieval_f1,
             "question_type_counts": dict(question_type_counts)
         }
         
