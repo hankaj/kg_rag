@@ -1,0 +1,915 @@
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>question_s</th>
+      <th>reference_answer_s</th>
+      <th>model_answer_s</th>
+      <th>f1_score_s</th>
+      <th>model_answer_h</th>
+      <th>f1_score_h</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Which magazine was started first Arthur's Magazine or First for Women?</td>
+      <td>Arthur's Magazine</td>
+      <td>Arthur's Magazine (1844) was started before First for Women (1989).</td>
+      <td>0.333333</td>
+      <td>Arthur's Magazine (1844) was started first.</td>
+      <td>0.500000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>The Oberoi family is part of a hotel company that has a head office in what city?</td>
+      <td>Delhi</td>
+      <td>Delhi.</td>
+      <td>1.000000</td>
+      <td>Delhi.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?</td>
+      <td>President Richard Nixon</td>
+      <td>President Richard Nixon.</td>
+      <td>1.000000</td>
+      <td>President Richard Nixon.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>What nationality was James Henry Miller's wife?</td>
+      <td>American</td>
+      <td>American</td>
+      <td>1.000000</td>
+      <td>American</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Cadmium Chloride is slightly soluble in this chemical, it is also called what?</td>
+      <td>alcohol</td>
+      <td>Alcohol.</td>
+      <td>1.000000</td>
+      <td>Alcohol.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Which tennis player won more Grand Slam titles, Henri Leconte or Jonathan Stark?</td>
+      <td>Jonathan Stark</td>
+      <td>Neither. Henri Leconte won singles titles, while Jonathan Stark won doubles titles.</td>
+      <td>0.285714</td>
+      <td>Neither. Henri Leconte won 1 Grand Slam title and Jonathan Stark won 2 Grand Slam titles.</td>
+      <td>0.222222</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Which genus of moth in the world's seventh-largest country contains only one species?</td>
+      <td>Crambidae</td>
+      <td>Indogrammodes.</td>
+      <td>0.000000</td>
+      <td>Indogrammodes.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Who was once considered the best kick boxer in the world, however he has been involved in a number of controversies relating to his "unsportsmanlike conducts" in the sport and crimes of violence outside of the ring.</td>
+      <td>Badr Hari</td>
+      <td>Badr Hari.</td>
+      <td>1.000000</td>
+      <td>Badr Hari.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>The Dutch-Belgian television series that "House of Anubis" was based on first aired in what year?</td>
+      <td>2006</td>
+      <td>2006</td>
+      <td>1.000000</td>
+      <td>2006</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>What is the length of the track where the 2013 Liqui Moly Bathurst 12 Hour was staged?</td>
+      <td>6.213 km long</td>
+      <td>6.213 km</td>
+      <td>0.800000</td>
+      <td>6.213 km</td>
+      <td>0.800000</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Fast Cars, Danger, Fire and Knives includes guest appearances from which hip hop record executive?</td>
+      <td>Jaime Meline</td>
+      <td>El-P.</td>
+      <td>0.000000</td>
+      <td>El-P.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Gunmen from Laredo starred which narrator of "Frontier"?</td>
+      <td>Walter Darwin Coy</td>
+      <td>Walter Coy.</td>
+      <td>0.800000</td>
+      <td>Walter Coy.</td>
+      <td>0.800000</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Where did the form of music played by Die Rhöner Säuwäntzt originate?</td>
+      <td>United States</td>
+      <td>Germany</td>
+      <td>0.000000</td>
+      <td>Eichenzell-Lütter in Hessen, Germany.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>In which American football game was Malcolm Smith named Most Valuable player?</td>
+      <td>Super Bowl XLVIII</td>
+      <td>Not mentioned.</td>
+      <td>0.000000</td>
+      <td>There is no mention of Malcolm Smith being named Most Valuable Player in an American football game.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>What U.S Highway gives access to Zilpo Road, and is also known as Midland Trail?</td>
+      <td>US 60</td>
+      <td>U.S. Highway 60.</td>
+      <td>0.800000</td>
+      <td>U.S. Route 60</td>
+      <td>0.800000</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>The 1988 American comedy film, The Great Outdoors, starred a four-time Academy Award nominee, who received a star on the Hollywood Walk of Fame in what year?</td>
+      <td>2006</td>
+      <td>2006</td>
+      <td>1.000000</td>
+      <td>Annette Bening; 2006</td>
+      <td>0.500000</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>What are the names of the current members of  American heavy metal band who wrote the music for  Hurt Locker The Musical?</td>
+      <td>Hetfield and Ulrich, longtime lead guitarist Kirk Hammett, and bassist Robert Trujillo.</td>
+      <td>Metallica.</td>
+      <td>0.000000</td>
+      <td>There is no American heavy metal band that wrote the music for Hurt Locker The Musical. According to the text, the music was written by Metallica and Stephen R. Schwartz (real name of Stephen Trask).</td>
+      <td>0.046512</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>Human Error" is the season finale of the third season of a tv show that aired on what network?</td>
+      <td>Fox</td>
+      <td>Fox</td>
+      <td>1.000000</td>
+      <td>Fox.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>Dua Lipa, an English singer, songwriter and model, the album spawned the number-one single "New Rules" is a song by English singer Dua Lipa from her eponymous debut studio album, released in what year?</td>
+      <td>2017</td>
+      <td>2017</td>
+      <td>1.000000</td>
+      <td>2017</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>American politician Joe Heck ran unsuccessfully against Democrat Catherine Cortez Masto, a woman who previously served as the 32nd Attorney General of where?</td>
+      <td>Nevada</td>
+      <td>Nevada.</td>
+      <td>1.000000</td>
+      <td>Nevada.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>Which state does the drug stores, of which the CEO is Warren Bryant, are located?</td>
+      <td>Hawaii</td>
+      <td>California</td>
+      <td>0.000000</td>
+      <td>Hawaii</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>Which  American politician did Donahue replaced</td>
+      <td>Kelli Ward</td>
+      <td>Kelli Ward</td>
+      <td>1.000000</td>
+      <td>Kelli Ward.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>Which band was founded first, Hole, the rock band that Courtney Love was a frontwoman of, or The Wolfhounds?</td>
+      <td>The Wolfhounds</td>
+      <td>The Wolfhounds (1985) was founded before Hole (1989).</td>
+      <td>0.250000</td>
+      <td>The Wolfhounds (formed in 1985) was founded before Hole (formed in 1989).</td>
+      <td>0.166667</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>How old is the female main protagonist of Catching Fire?</td>
+      <td>16-year-old</td>
+      <td>16</td>
+      <td>0.000000</td>
+      <td>16</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>Chang Ucchin was born in korea during a time that ended with the conclusion of what?</td>
+      <td>World War II</td>
+      <td>World War Two.</td>
+      <td>0.666667</td>
+      <td>World War II.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>Who is the director of the 2003 film which has scenes in it filmed at the Quality Cafe in Los Angeles?</td>
+      <td>Todd Phillips</td>
+      <td>There is no mention of a 2003 film with scenes filmed at the Quality Cafe in Los Angeles.</td>
+      <td>0.000000</td>
+      <td>The question is asking about a film that has scenes filmed at the Quality Cafe in Los Angeles. However, there is no mention of a specific film in the provided text that has scenes filmed at the Quality Cafe in Los Angeles. The text only mentions that Quality Cafe is a former location in Downtown Los Angeles and was renamed to Humming Bird Cafe. It does not provide information about a specific film that was shot at the Quality Cafe. Therefore, the answer is "Unknown".</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>New Faces of 1952 is a musical revue with songs and comedy skits, it helped jump start the career of which young performer, and American actress?</td>
+      <td>Carol Lawrence</td>
+      <td>Eartha Kitt and Carol Lawrence.</td>
+      <td>0.571429</td>
+      <td>Eartha Kitt and Carol Lawrence.</td>
+      <td>0.571429</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>Were Pavel Urysohn and Leonid Levin known for the same type of work?</td>
+      <td>no</td>
+      <td>No</td>
+      <td>1.000000</td>
+      <td>No</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>Are both The New Pornographers and Kings of Leon American rock bands?</td>
+      <td>no</td>
+      <td>No</td>
+      <td>1.000000</td>
+      <td>No</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>750 7th Avenue and 101 Park Avenue, are located in which city?</td>
+      <td>New York City</td>
+      <td>New York City.</td>
+      <td>1.000000</td>
+      <td>New York City</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>Which actress played the part of fictitious character Kimberly Ann Hart, in the franchise built around a live action superhero television series taking much of its footage from the Japanese tokusatsu 'Super Sentai'?</td>
+      <td>Amy Jo Johnson</td>
+      <td>Amy Jo Johnson.</td>
+      <td>1.000000</td>
+      <td>Amy Jo Johnson</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>Who was born first, Pablo Trapero or Aleksander Ford?</td>
+      <td>Aleksander Ford</td>
+      <td>Aleksander Ford (born 1908) was born before Pablo Trapero (born 1971).</td>
+      <td>0.307692</td>
+      <td>Aleksander Ford</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>Are Jane and First for Women both women's magazines?</td>
+      <td>yes</td>
+      <td>Yes.</td>
+      <td>1.000000</td>
+      <td>Yes.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>What profession does Nicholas Ray and Elia Kazan have in common?</td>
+      <td>director</td>
+      <td>Film director.</td>
+      <td>0.666667</td>
+      <td>Director</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>Where is the company that purchased Aixam based in?</td>
+      <td>Roseau, Minnesota, USA</td>
+      <td>Roseau, Minnesota, USA.</td>
+      <td>1.000000</td>
+      <td>US</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>Which documentary is about Finnish rock groups, Adam Clayton Powell or The Saimaa Gesture?</td>
+      <td>The Saimaa Gesture</td>
+      <td>The Saimaa Gesture.</td>
+      <td>1.000000</td>
+      <td>The Saimaa Gesture.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>Who was inducted into the Rock and Roll Hall of Fame, David Lee Roth or Cia Berg?</td>
+      <td>David Lee Roth</td>
+      <td>David Lee Roth.</td>
+      <td>1.000000</td>
+      <td>David Lee Roth.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>Zimbabwe's Guwe Secondary School has a sister school in what New York cunty?</td>
+      <td>Nassau County</td>
+      <td>Nassau County.</td>
+      <td>1.000000</td>
+      <td>Nassau County.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>The Royal Commission into Drug Trafficking (1977–1979) or Woodward Royal Commission was a royal commission initiated by the New South Wales Government to investigate drug trafficking in New South Wales, Australia, especially links between the New South Wales Police and Mafia, The Honoured Society, is a Calabrian 'Ndrangheta criminal confederation, started in Melbourne and currently active in all of which country?</td>
+      <td>Australia</td>
+      <td>Australia.</td>
+      <td>1.000000</td>
+      <td>Australia.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>The 337th Flight Test Squadron (337 FLTS) was most recently part of the 46th Test Wing and based at McClellan Air Force Base, a former United States Air Force base located in the North Highlands area of Sacramento County, in which US state?</td>
+      <td>California</td>
+      <td>California.</td>
+      <td>1.000000</td>
+      <td>California</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>The axial turbojet Pirna 014 was designed by engineers from this German aircraft and aircraft engine manufacturer based in which city?</td>
+      <td>Dessau</td>
+      <td>Junkers, Dessau.</td>
+      <td>0.666667</td>
+      <td>Junkers, Dessau.</td>
+      <td>0.666667</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>Which faith is designated to the University of Providence, private university accredited by the NW association of Schools and Colleges and located in a third largest city in Montana after being passed by Missoula?</td>
+      <td>Roman Catholic</td>
+      <td>Roman Catholic</td>
+      <td>1.000000</td>
+      <td>Roman Catholic</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>Pauline Henry was known as the vocalist of a very popular cover song. Which album was this song from?</td>
+      <td>The Joshua Tree</td>
+      <td>The Chimes.</td>
+      <td>0.000000</td>
+      <td>The Chimes</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>Guitars for Wounded Warriors is an album that was recorded in the village in which New York county?</td>
+      <td>Ulster County</td>
+      <td>No, Guitars for Wounded Warriors is an album that was recorded in the village of New Paltz, Ulster County, New York.</td>
+      <td>0.190476</td>
+      <td>No, Guitars for Wounded Warriors is an album that was recorded in New Paltz, not in a village in New York County.</td>
+      <td>0.090909</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>What American country music singer-songwriter, born in May of 1942, sang a duet with her ex-husband the same year that he released the song "The Battle?"</td>
+      <td>Tammy Wynette</td>
+      <td>Tammy Wynette.</td>
+      <td>1.000000</td>
+      <td>Tammy Wynette</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>Who was born first, Francis Nethersole or Elizabeth Stuart?</td>
+      <td>Sir Francis Nethersole</td>
+      <td>Elizabeth Stuart (1596) was born after Francis Nethersassistant&lt;|end_header_id|&gt;\n\nFrancis Nethersole (1587) was born first.</td>
+      <td>0.235294</td>
+      <td>Elizabeth Stuart (1596) was born after Francis Nethersassistant&lt;|end_header_id|&gt;\n\nFrancis Nethersole (1587) was born first.</td>
+      <td>0.235294</td>
+    </tr>
+    <tr>
+      <th>46</th>
+      <td>What does the Hacker-Pschorr Brewery have to limit in order to comply with German regulations?</td>
+      <td>ingredients in beer</td>
+      <td>Ingredients in beer.</td>
+      <td>1.000000</td>
+      <td>Ingredients in beer.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>Don Barry Mason was the founder of the Psychedelic Shamanistic Institute (PSI), which other member that's Welsh, that died on 10 April 2016?</td>
+      <td>Dennis Howard Marks</td>
+      <td>There is no Welsh member of PSI who died on 10 April 2016.</td>
+      <td>0.000000</td>
+      <td>There is no Welsh member of the Psychedelic Shamanistic Institute (PSI) who died on 10 April 2016.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>What male actor starred in The Messenger?</td>
+      <td>Robert Sheehan</td>
+      <td>Robert Sheehan.</td>
+      <td>1.000000</td>
+      <td>Robert Sheehan</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>Are Gin and tonic and Paloma both cocktails based on tequila?</td>
+      <td>no</td>
+      <td>No</td>
+      <td>1.000000</td>
+      <td>No</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>Who is older Glenn Hughes or Ross Lynch?</td>
+      <td>Glenn Hughes</td>
+      <td>Glenn Hughes.</td>
+      <td>1.000000</td>
+      <td>Glenn Hughes</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>51</th>
+      <td>In what year was the creator of the current arrangement of the "Simpson's Theme" born?</td>
+      <td>March 28, 1941</td>
+      <td>1941</td>
+      <td>0.500000</td>
+      <td>The question is asking about the creator of the current arrangement of the "Simpson's Theme", which is Danny Elfman. However, the text does not provide the birth year of Danny Elfman.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>The Southern Railway runs from Vienna to Graz and the border with Slovenia at Spielfeld via the first mountain railway built in Europe to use what kind of track?</td>
+      <td>standard gauge track</td>
+      <td>standard gauge track.</td>
+      <td>1.000000</td>
+      <td>standard gauge track</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>In what show did Cynthia Nixon receive the 2004 Primetime Emmy Award for Outstanding Supporting Actress in a Comedy Series and a Screen Actors Guild Award for her performance?</td>
+      <td>Sex and the City</td>
+      <td>"Sex and the City"</td>
+      <td>1.000000</td>
+      <td>Sex and the City</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>Lee Jun-fan played what character in "The Green Hornet" television series?</td>
+      <td>Kato</td>
+      <td>Kato.</td>
+      <td>1.000000</td>
+      <td>Kato.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>The 1895/96 Football League season was the eighth in Football League history with Everton, their Goodison Park home, is a football stadium located in Walton, Liverpool, in which country?</td>
+      <td>England</td>
+      <td>None</td>
+      <td>0.000000</td>
+      <td>None</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>56</th>
+      <td>A Head Full of Dreams Tour is the seventh tour by Coldplay, and which had it's first show at a stadium that is known as Estadio Unico and is owned by who?</td>
+      <td>Province of Buenos Aires</td>
+      <td>The Province of Buenos Aires.</td>
+      <td>1.000000</td>
+      <td>The Province of Buenos Aires.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>Roger Avary (born August 23, 1965) is a Canadian film and television producer, screenwriter and director in the American mass media industry, he wrote the screenplay for Beowulf, a 2007 British-American 3D motion capture epic fantasy film, directed by who?</td>
+      <td>Robert Zemeckis</td>
+      <td>Robert Zemeckis.</td>
+      <td>1.000000</td>
+      <td>Robert Zemeckis.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>The American Pre-Code comedy film featuring an American actress, dancer, and singer, widely known for performing in films and RKO's musical films, was released in what year?</td>
+      <td>1932</td>
+      <td>The answer is not explicitly stated in the text. However, based on the context, I can infer that the American actress, dancer, and singer is Ginger Rogers. Since there is no specific" American Pre-Code comedy film" mentioned in the text that features Ginger Rogers, I will answer "Not specified".</td>
+      <td>0.000000</td>
+      <td>None of the films mentioned feature Ginger Rogers as the main actress. However, Hat Check Girl (1932) is mentioned as one of her films.</td>
+      <td>0.086957</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>An edited version of "Just the Two of Us" reached number two on the "Billboard" Hot 100 behind a song written and composed by Donna Weiss and Jackie DeShannon which spend how many weeks at No. 1 on the "Billboard" hot 100?</td>
+      <td>nine</td>
+      <td>9 weeks</td>
+      <td>0.000000</td>
+      <td>9 weeks</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>Which band has more members, Saint Motel or Curve?</td>
+      <td>Saint Motel</td>
+      <td>Saint Motel has 4 members, Curve has 2 members.</td>
+      <td>0.363636</td>
+      <td>Saint Motel.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>"Funnybot" is the second episode of the fifteenth season of which American animated television series, created by Trey Parker and Matt Stone?</td>
+      <td>South Park</td>
+      <td>"South Park"</td>
+      <td>1.000000</td>
+      <td>South Park.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>Which private research university is located in Chestnut Hill, Massachusetts Boston College or Stanford University?</td>
+      <td>Boston College</td>
+      <td>Boston College.</td>
+      <td>1.000000</td>
+      <td>Boston College.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>What American stage, film, and television actor  who also appeared in a large number of musicals, played Samson in the 1949 film "Samson and Delilah".</td>
+      <td>Victor John Mature</td>
+      <td>Victor Mature.</td>
+      <td>0.800000</td>
+      <td>Victor John Mature</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>Iqaluit Airport and Canadian North are based out of what country?</td>
+      <td>Canada</td>
+      <td>Canada</td>
+      <td>1.000000</td>
+      <td>Canada</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>In what political party was the man who officially opened he Royal Spa Centre in 1972?</td>
+      <td>Conservative</td>
+      <td>Conservative Party</td>
+      <td>0.666667</td>
+      <td>Conservative Party.</td>
+      <td>0.666667</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>Which Oscar-nominated film was written by the screenwriter who wrote a 1991 romantic drama based upon a screenplay by Sooni Taraporevala?</td>
+      <td>Salaam Bombay</td>
+      <td>Salaam Bombay.</td>
+      <td>1.000000</td>
+      <td>Salaam Bombay.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>Are both Tim McIlrath and Spike Slawson American punk rock musicians?</td>
+      <td>yes</td>
+      <td>Yes.</td>
+      <td>1.000000</td>
+      <td>Yes.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>68</th>
+      <td>The Golden Globe Award winner for best actor from "Roseanne" starred along what actress in Gigantic?</td>
+      <td>Zooey Deschanel</td>
+      <td>Zooey Deschanel.</td>
+      <td>1.000000</td>
+      <td>John Goodman starred alongside Zooey Deschanel" in Gigantic.</td>
+      <td>0.400000</td>
+    </tr>
+    <tr>
+      <th>69</th>
+      <td>The expert mentor to the celebrities that perform on "Splash!" won the 2009 FINA World Championionship in the individual event at what age?</td>
+      <td>15</td>
+      <td>15</td>
+      <td>1.000000</td>
+      <td>15</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>70</th>
+      <td>Still Da Baddest is the fourth studio album by American rapper Trina, following the poor chart performance, "I Got a Thang for You" featuring which American singer/songwriter, record producer, business woman, and television personality, and was born in Oakland, California?</td>
+      <td>Keyshia Cole</td>
+      <td>None</td>
+      <td>0.000000</td>
+      <td>None</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>71</th>
+      <td>What profession does Am Rong and Alexandre Rockwell have in common?</td>
+      <td>filmmaker</td>
+      <td>Filmmaker.</td>
+      <td>1.000000</td>
+      <td>Filmmaker</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>El Nuevo Cojo and Golf Magazine are both special interest publications but which one is owned by Time Inc?</td>
+      <td>Golf Magazine</td>
+      <td>Golf Magazine.</td>
+      <td>1.000000</td>
+      <td>Golf Magazine.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>73</th>
+      <td>Who funds the bowling team that includes the school bus driver for Springfield Elementary School?</td>
+      <td>Mr. Burns</td>
+      <td>Mr. Burns.</td>
+      <td>1.000000</td>
+      <td>Mr. Burns.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>74</th>
+      <td>What city are George Washington University Hospital and MedStar Washington Hospital Center located in?</td>
+      <td>Washington, D.C.</td>
+      <td>Washington, D.C.</td>
+      <td>1.000000</td>
+      <td>Washington, D.C.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>75</th>
+      <td>what is the connection between Peter O'Meara and Norman Dike?</td>
+      <td>Band of Brothers</td>
+      <td>Peter O'Meara played Norman Dike in the HBO series "Band of Brothers".</td>
+      <td>0.428571</td>
+      <td>Peter O'Meara played Norman Dike.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>76</th>
+      <td>What author has contributed to such works as "New Statesmen", "The Nation", and "The Atlantic", among others, while also being being associated with Dysteleology?</td>
+      <td>Christopher Hitchens</td>
+      <td>Christopher Eric Hitchens.</td>
+      <td>0.800000</td>
+      <td>Eric Hitchens.</td>
+      <td>0.500000</td>
+    </tr>
+    <tr>
+      <th>77</th>
+      <td>Who developed the prototype pacemaker used by the 34th President of the USA?</td>
+      <td>R Adams Cowley</td>
+      <td>R Adams Cowley.</td>
+      <td>1.000000</td>
+      <td>R Adams Cowley.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>78</th>
+      <td>Which publishing company has published Bizarre and a sister publication devoted to the anomalous phenomena popularised by Charles Fort?</td>
+      <td>Dennis Publishing</td>
+      <td>Dennis Publishing.</td>
+      <td>1.000000</td>
+      <td>Dennis Publishing.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>79</th>
+      <td>Who performed the lead single on the album Friends in Low Places, No Fences, that reached #1 on Billboard?</td>
+      <td>Garth Brooks</td>
+      <td>Garth Brooks</td>
+      <td>1.000000</td>
+      <td>Garth Brooks</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>80</th>
+      <td>Hate to Feel is the tenth track on what Alice in Chains' album that peaked as number six on the Billboard 200?</td>
+      <td>Dirt</td>
+      <td>Dirt</td>
+      <td>1.000000</td>
+      <td>Dirt</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>81</th>
+      <td>The lead singer and guitarist in the Portland, Oregon rock band consisting of John Gourley, Zach Carothers, Kyle O'Quin, Jason Sechrist and Eric Howk, goes by what alias?</td>
+      <td>The Fantastic The</td>
+      <td>The Fantastic The.</td>
+      <td>1.000000</td>
+      <td>The Fantastic The.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>82</th>
+      <td>What year was the winner of the 2016 Marrakesh ePrix born?</td>
+      <td>1988</td>
+      <td>1988</td>
+      <td>1.000000</td>
+      <td>1988</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>83</th>
+      <td>South Korean actor Kim Yool-ho starred in what 2016 movie directed by Yeon Sang-ho Yeon Sang-ho and starring actors Gong Yoo, Jung Yu-mi, and Ma Dong-seok?</td>
+      <td>Train to Busan</td>
+      <td>Train to Busan.</td>
+      <td>1.000000</td>
+      <td>Train to Busan.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>84</th>
+      <td>According to the 2006 census what is the population of the city in which James Iroha Uchechukwu was born ?</td>
+      <td>722,664</td>
+      <td>722,664</td>
+      <td>1.000000</td>
+      <td>722,664</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>85</th>
+      <td>What actor in the film D.C. Cab also had a role in the TV series Barney Miller?</td>
+      <td>Max Gail</td>
+      <td>Max Gail.</td>
+      <td>1.000000</td>
+      <td>Max Gail</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>86</th>
+      <td>Which industry do Richard Hawley and Chicago's Catherine belong to?</td>
+      <td>rock band</td>
+      <td>Music</td>
+      <td>0.000000</td>
+      <td>Music</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>87</th>
+      <td>Are Pam Veasey and Jon Jost both American?</td>
+      <td>yes</td>
+      <td>Yes.</td>
+      <td>1.000000</td>
+      <td>Yes.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>88</th>
+      <td>Maurice Hines and his brother were famous for what?</td>
+      <td>dancer Gregory Hines</td>
+      <td>Dancing.</td>
+      <td>0.000000</td>
+      <td>Dancing.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <td>Are the New Orleans Outfall Canals the same length as the Augusta Canal?</td>
+      <td>yes</td>
+      <td>No.</td>
+      <td>0.000000</td>
+      <td>No.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>In which stadium do the teams owned by Myra Kraft's husband play?</td>
+      <td>Gillette Stadium</td>
+      <td>Gillette Stadium.</td>
+      <td>1.000000</td>
+      <td>Gillette Stadium.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>91</th>
+      <td>What southern California based band covered Blue Öyster Cult's Godzilla?</td>
+      <td>Fu Manchu</td>
+      <td>Fu Manchu.</td>
+      <td>1.000000</td>
+      <td>Fu Manchu</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>92</th>
+      <td>The Swedish-British entertainment studio executive and film executive producer, who was the Executive producer for a 2016 American action thriller film directed by Babak Najafi, currently serve?</td>
+      <td>CEO of Lionsgate UK &amp; Europe</td>
+      <td>As CEO of Lionsgate UK &amp; Europe.</td>
+      <td>0.909091</td>
+      <td>CEO of Lionsgate UK &amp; Europe.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>93</th>
+      <td>an Emmy Award winner and two-time Tony Award winner, was on the episode 15 of the third season of "Chuck". what is her name ?</td>
+      <td>Swoosie Kurtz</td>
+      <td>Swoosie Kurtz</td>
+      <td>1.000000</td>
+      <td>Swoosie Kurtz.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>94</th>
+      <td>What is the current name of the Atlanta Mansion built for the daughter of the 41st Mayor of Atlanta, Georgia?</td>
+      <td>Lullwater Estate</td>
+      <td>Lullwater Estate.</td>
+      <td>1.000000</td>
+      <td>Rainbow Terrace, also known as Lullwater Estate.</td>
+      <td>0.444444</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>Who invented the type of script used in autographs?</td>
+      <td>the Sumerians</td>
+      <td>The Sumerians.</td>
+      <td>1.000000</td>
+      <td>The Sumerians.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>Approximately what percentage of the global population is made up of the ethnic group Princess Fragrant was produced to improve relations with?</td>
+      <td>17%</td>
+      <td>There is no ethnic group related to Princess Fragrant. Princess Fragrant is a Chinese 3-D cartoon series directed by Deng Jianglei and produced by the Shenzhen Qianheng Cultural Communication Company. It was produced to improve relations between the Han Chinese and the Uighurs.</td>
+      <td>0.000000</td>
+      <td>17%</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>The Boren-McCurdy proposals were partially brought about by which Oklahoma politician in 1992?</td>
+      <td>David Lyle Boren</td>
+      <td>None. The Boren-McCurdy proposals being partially brought about by an Oklahoma politician in 1992.</td>
+      <td>0.000000</td>
+      <td>None. The Boren-McCurdy proposals being partially brought about by an Oklahoma politician in 1992.</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>98</th>
+      <td>The Thoen Stone is on display at a museum in what county?</td>
+      <td>Lawrence County</td>
+      <td>Lawrence County.</td>
+      <td>1.000000</td>
+      <td>Lawrence County.</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>99</th>
+      <td>Is Children's National Medical Center or MedStar Washington Hospital Center the largest private hospital in Washington, D.C.?</td>
+      <td>MedStar Washington Hospital Center</td>
+      <td>MedStar Washington Hospital Center is the largest private hospital in Washington, D.C.</td>
+      <td>0.533333</td>
+      <td>MedStar Washington Hospital Center.</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>

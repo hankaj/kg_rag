@@ -2,3 +2,5 @@ venv/*
 .env
 src/data/datasets
 __pycache__
+results/*
+checkpoints/*

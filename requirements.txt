@@ -9,3 +9,4 @@ python-dotenv>=1.0.0
 pydantic>=2.5.0
 wikipedia>=1.4.0
 yfiles-jupyter-graphs>=1.5.0
+# todo datasets, langgraph

@@ -2,44 +2,37 @@ from typing import Dict, Any, TypedDict, Optional
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from src.config.settings import DEFAULT_LLM_MODEL, GROQ_API_URL, GROQ_API_KEY
 
-from src.retrieval.retriever import HybridRetriever, StandardRetriever
-from src.config.settings import DEFAULT_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
-
-class QAState(TypedDict):
-    """State type for the QA graph"""
+class SimpleQAState(TypedDict):
+    """State type for the simplified QA graph"""
     question: str
-    context: Optional[str]
     answer: Optional[str]
 
-
-class QAChain:
-    """Simple question-answering chain using LangGraph"""
+class SimpleQAChain:
+    """Simple question-answering chain using LangGraph without retrieval"""
     
-    def __init__(self, retrieval: str = "standard", model_name: str = DEFAULT_LLM_MODEL):
+    def __init__(self, model_name: str = DEFAULT_LLM_MODEL):
         """
-        Initialize the QA chain
+        Initialize the Simple QA chain
+        
         Args:
             model_name: Name of the LLM model to use
         """
         self.llm = ChatOpenAI(
-            model=DEFAULT_LLM_MODEL,
-            temperature=0,
-            api_key=GROQ_API_KEY,
-            base_url=GROQ_API_URL
+        model=DEFAULT_LLM_MODEL,
+        temperature=0,
+        api_key=GROQ_API_KEY,
+        base_url=GROQ_API_URL
         )
-        if retrieval=="hybrid":
-            self.retriever = HybridRetriever()
-        else:
-            self.retriever = StandardRetriever()
         
-        # Set up the answering template
-        qa_template = """Answer the question based only on the following context:
-{context}
-
+        # Set up the answering template - no context needed
+        qa_template = """Answer the following question directly and concisely:
+        
 Question: {question}
 
 Be as simple and concise as possible — prefer short direct answers over full explanations.
+
 Answer:"""
         self.qa_prompt = ChatPromptTemplate.from_template(qa_template)
         
@@ -49,16 +42,10 @@ Answer:"""
     def _setup_graph(self):
         """Set up the simplified QA graph with nodes and edges"""
         
-        def retrieve_context(state: QAState) -> Dict:
-            """Retrieve relevant documents for the question"""
-            context = self.retriever.retrieve(state["question"])
-            return {"context": context}
-        
-        def generate_answer(state: QAState) -> Dict:
-            """Generate an answer based on the context and question"""
-            # Prepare the prompt with context and question
+        def generate_answer(state: SimpleQAState) -> Dict:
+            """Generate an answer based directly on the question"""
+            # Prepare the prompt with the question
             prompt = self.qa_prompt.invoke({
-                "context": state["context"],
                 "question": state["question"]
             })
             
@@ -67,18 +54,16 @@ Answer:"""
             return {"answer": answer}
         
         # Create the graph
-        graph = StateGraph(QAState)
+        graph = StateGraph(SimpleQAState)
         
-        # Add nodes - using different names than state keys
-        graph.add_node("retrieval_node", retrieve_context)
+        # Add the answer generation node
         graph.add_node("generation_node", generate_answer)
         
-        # Add edges
-        graph.add_edge("retrieval_node", "generation_node")
+        # Connect to END
         graph.add_edge("generation_node", END)
         
         # Set the entry point
-        graph.set_entry_point("retrieval_node")
+        graph.set_entry_point("generation_node")
         
         # Compile the graph
         self.graph = graph.compile()
@@ -86,15 +71,16 @@ Answer:"""
     def invoke(self, input_dict: Dict[str, Any]) -> str:
         """
         Invoke the QA chain
+        
         Args:
             input_dict: Input dictionary with 'question'
+            
         Returns:
             Answer to the question
         """
         # Initialize state with input
-        state = QAState(
+        state = SimpleQAState(
             question=input_dict["question"],
-            context=None,
             answer=None
         )
         
@@ -107,8 +93,10 @@ Answer:"""
     def run(self, question: str) -> str:
         """
         Run the QA chain with a question
+        
         Args:
             question: User question
+            
         Returns:
             Answer to the question
         """

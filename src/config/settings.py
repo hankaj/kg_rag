@@ -15,8 +15,11 @@ AURA_INSTANCEID = os.getenv("AURA_INSTANCEID")
 AURA_INSTANCENAME = os.getenv("AURA_INSTANCENAME")
 
 # LLM model settings
-DEFAULT_LLM_MODEL = "gpt-4o-2024-08-06"
+OPENAI_LLM_MODEL = "gpt-4o-2024-08-06"
+DEFAULT_LLM_MODEL = "llama3-70b-8192"
 DEFAULT_EMBEDDING_MODEL = "text-embedding-ada-002"
+GROQ_API_URL = "https://api.groq.com/openai/v1"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # Text processing settings
 CHUNK_SIZE = 512

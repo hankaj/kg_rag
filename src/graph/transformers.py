@@ -2,7 +2,7 @@ from langchain_experimental.graph_transformers import LLMGraphTransformer
 from langchain_openai import ChatOpenAI
 from typing import List, Dict, Any
 from langchain.schema import Document
-from src.config.settings import DEFAULT_LLM_MODEL
+from src.config.settings import DEFAULT_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
 
 
 class GraphTransformer:
@@ -15,8 +15,13 @@ class GraphTransformer:
         Args:
             model_name: Name of the LLM model to use
         """
-        llm = ChatOpenAI(temperature=0, model_name=model_name)
-        self.transformer = LLMGraphTransformer(llm=llm)
+        llm = ChatOpenAI(
+            model=DEFAULT_LLM_MODEL,
+            temperature=0,
+            api_key=GROQ_API_KEY,
+            base_url=GROQ_API_URL,
+        )
+        self.transformer = LLMGraphTransformer(llm=llm, ignore_tool_usage=True)
         
     def transform(self, documents: List[Document]) -> List[Dict[str, Any]]:
         """

@@ -4,6 +4,7 @@ from typing import List, Dict, Any
 from src.graph.database import GraphDatabase
 from src.retrieval.entity_extractor import EntityExtractor
 from src.retrieval.query_utils import generate_full_text_query
+from langchain_neo4j.vectorstores.neo4j_vector import remove_lucene_chars
 from src.config.settings import DEFAULT_EMBEDDING_MODEL
 
 
@@ -50,12 +51,12 @@ class StructuredRetriever:
         return result.strip()
 
 
-class UnstructuredRetriever:
+class StandardRetriever:
     """Retrieves information using vector similarity search"""
     
     def __init__(self, embedding_model: str = DEFAULT_EMBEDDING_MODEL):
         """
-        Initialize the unstructured retriever
+        Initialize the standard retriever
         
         Args:
             embedding_model: Name of the embedding model to use
@@ -80,7 +81,8 @@ class UnstructuredRetriever:
         Returns:
             List of retrieved document contents
         """
-        docs = self.vector_store.similarity_search(question, k=k)
+        sanitized_question = remove_lucene_chars(question)
+        docs = self.vector_store.similarity_search(sanitized_question, k=k)
         return [doc.page_content for doc in docs]
 
 
@@ -90,7 +92,7 @@ class HybridRetriever:
     def __init__(self):
         """Initialize the hybrid retriever"""
         self.structured_retriever = StructuredRetriever()
-        self.unstructured_retriever = UnstructuredRetriever()
+        self.unstructured_retriever = StandardRetriever()
         
     def retrieve(self, question: str) -> str:
         """
@@ -111,5 +113,4 @@ class HybridRetriever:
 Unstructured data:
 {"#Document ".join(unstructured_data)}
         """
-        
         return final_data

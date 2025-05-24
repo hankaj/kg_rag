@@ -1,4 +1,4 @@
-from langchain.document_loaders import WikipediaLoader, DirectoryLoader
+from langchain_community.document_loaders import WikipediaLoader, DirectoryLoader
 from typing import List, Optional
 from langchain.schema import Document
 import os
@@ -105,7 +105,7 @@ class HotpotQADataLoader:
             documents.append(
                 Document(
                     page_content=combined_sentences,
-                    metadata={'question': item['question'], 'answer': item['answer']['text']}
+                    metadata={'question': item['question'], 'answer': item['answer']}
                 )
             )
         

@@ -1,20 +1,23 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from src.models.entities import Entities
-from src.config.settings import DEFAULT_LLM_MODEL
+from src.config.settings import OPENAI_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
 
 
 class EntityExtractor:
     """Extracts entities from text using LLM"""
     
-    def __init__(self, model_name: str = DEFAULT_LLM_MODEL):
+    def __init__(self, model_name: str = OPENAI_LLM_MODEL):
         """
         Initialize the entity extractor
         
         Args:
             model_name: Name of the LLM model to use
         """
-        self.llm = ChatOpenAI(temperature=0, model_name=model_name)
+        self.llm = ChatOpenAI(
+            model=OPENAI_LLM_MODEL,
+            temperature=0,
+        )
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 (
