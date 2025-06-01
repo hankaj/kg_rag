@@ -3,7 +3,7 @@ from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
-from src.retrieval.retriever import HybridRetriever, StandardRetriever
+from src.retrieval.retriever import HybridRetriever, StandardRetriever, KGRetriever, SmartKGRetriever, RerankRetriever
 from src.config.settings import DEFAULT_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
 
 class QAState(TypedDict):
@@ -24,6 +24,10 @@ class QAChain:
         )
         if retrieval=="hybrid":
             self.retriever = HybridRetriever()
+        if retrieval=="kg":
+            self.retriever = SmartKGRetriever()
+        if retrieval=="rerank":
+            self.retriever = RerankRetriever(self.llm)
         else:
             self.retriever = StandardRetriever()
         
@@ -41,8 +45,8 @@ Answer:"""
     def _setup_graph(self):
         
         def retrieve_context(state: QAState) -> Dict:
-            context, questions = self.retriever.retrieve(state["question"])
-            return {"context": context, "retrieved_questions": questions}
+            context = self.retriever.retrieve(state["question"])
+            return {"context": context}
         
         def generate_answer(state: QAState) -> Dict:
             prompt = self.qa_prompt.invoke({
@@ -69,8 +73,7 @@ Answer:"""
         state = QAState(
             question=input_dict["question"],
             context=None,
-            answer=None,
-            retrieved_questions=None
+            answer=None
         )
         
         result = self.graph.invoke(state)

@@ -5,15 +5,8 @@ from src.config.settings import OPENAI_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
 
 
 class EntityExtractor:
-    """Extracts entities from text using LLM"""
     
     def __init__(self, model_name: str = OPENAI_LLM_MODEL):
-        """
-        Initialize the entity extractor
-        
-        Args:
-            model_name: Name of the LLM model to use
-        """
         self.llm = ChatOpenAI(
             model=OPENAI_LLM_MODEL,
             temperature=0,
@@ -22,11 +15,17 @@ class EntityExtractor:
             [
                 (
                     "system",
-                    "You are extracting organization and person entities from the text.",
+                    "You are a state-of-the-art entity extractor used to identify key entities "
+                    "from natural language questions for knowledge graph querying. "
+                    "Your goal is to extract all relevant named entities, concepts, or keywords "
+                    "that may exist in a knowledge graph, in a structured format. "
+                    "Only return entities that are significant for understanding or answering the question. "
+                    "Do not return generic terms, stopwords, or question words. "
+                    "Output should strictly follow the given schema without explanation."
                 ),
                 (
                     "human",
-                    "Use the given format to extract information from the following "
+                    "Extract all entities from the following question "
                     "input: {question}",
                 ),
             ]
@@ -34,13 +33,4 @@ class EntityExtractor:
         self.chain = self.prompt | self.llm.with_structured_output(Entities)
         
     def extract(self, text: str) -> Entities:
-        """
-        Extract entities from text
-        
-        Args:
-            text: Text to extract entities from
-            
-        Returns:
-            Entities object containing extracted entity names
-        """
         return self.chain.invoke({"question": text})

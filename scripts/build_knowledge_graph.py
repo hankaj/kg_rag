@@ -13,7 +13,7 @@ from langchain_community.vectorstores import Neo4jVector
 
 def build_knowledge_graph(source: str, query: str = None, split: str = "train", 
                          max_docs: int = None, batch_size: int = 50, 
-                         start_from: int = 0, checkpoint_dir: str = "./checkpoints"):
+                         start_from: int = 0):
     """
     Build a knowledge graph from either Wikipedia or HotpotQA with batch processing
     and checkpointing for resumable execution
@@ -27,14 +27,6 @@ def build_knowledge_graph(source: str, query: str = None, split: str = "train",
         start_from: Index of document to start processing from
         checkpoint_dir: Directory to store checkpoint information
     """
-    # Create checkpoint directory if it doesn't exist
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    
-    # Checkpoint file path
-    checkpoint_file = os.path.join(
-        checkpoint_dir, 
-        f"kg_checkpoint_{source}_{split}_{query if query else 'no_query'}.json"
-    )
     print(f"Loading data from source='{source}'...")
     if source == "wikipedia":
         if not query:
@@ -49,100 +41,66 @@ def build_knowledge_graph(source: str, query: str = None, split: str = "train",
     total_docs = len(raw_documents)
     print(f"Loaded {total_docs} raw documents")
     
-    # # Load or initialize checkpoint
-    # last_completed_batch = -1
-    # last_completed_doc = start_from - 1
-    # checkpoint_exists = os.path.exists(checkpoint_file)
+    # Load or initialize checkpoint
+    last_completed_batch = -1
+    last_completed_doc = start_from - 1
     
-    # if checkpoint_exists:
-    #     try:
-    #         with open(checkpoint_file, 'r') as f:
-    #             checkpoint_data = json.load(f)
-    #             last_completed_batch = checkpoint_data.get('last_completed_batch', -1)
-    #             last_completed_doc = checkpoint_data.get('last_completed_doc', start_from - 1)
-    #             print(f"Found checkpoint: Completed up to batch {last_completed_batch}, document {last_completed_doc}")
-                
-    #             # Update start_from based on checkpoint
-    #             start_from = last_completed_doc + 1
-    #     except (json.JSONDecodeError, FileNotFoundError) as e:
-    #         print(f"Error reading checkpoint file: {e}. Starting fresh.")
-    #         last_completed_batch = -1
-    #         last_completed_doc = start_from - 1
+    # Skip documents if starting from a specific index
+    if start_from > 0:
+        if start_from >= total_docs:
+            raise ValueError(f"start_from={start_from} exceeds the number of documents ({total_docs})")
+        print(f"Skipping first {start_from} documents...")
+        raw_documents = raw_documents[start_from:]
+        total_docs = len(raw_documents)
     
-    # # Skip documents if starting from a specific index
-    # if start_from > 0:
-    #     if start_from >= total_docs:
-    #         raise ValueError(f"start_from={start_from} exceeds the number of documents ({total_docs})")
-    #     print(f"Skipping first {start_from} documents...")
-    #     raw_documents = raw_documents[start_from:]
-    #     total_docs = len(raw_documents)
+    # Calculate number of batches
+    num_batches = (total_docs + batch_size - 1) // batch_size  # Ceiling division
+    print(f"Processing {total_docs} documents in {num_batches} batches (batch_size={batch_size})...")
     
-    # # Calculate number of batches
-    # num_batches = (total_docs + batch_size - 1) // batch_size  # Ceiling division
-    # print(f"Processing {total_docs} documents in {num_batches} batches (batch_size={batch_size})...")
-    
-    # # Initialize components
-    # document_splitter = DocumentSplitter()
+    # Initialize components
+    document_splitter = DocumentSplitter()
     graph_transformer = GraphTransformer()
     graph_db = GraphDatabase()
     
-    # # Process in batches
-    # start_doc_idx = start_from
-    # for batch_num in range(num_batches):
-    #     batch_start = batch_num * batch_size
-    #     batch_end = min(batch_start + batch_size, total_docs)
-    #     batch_docs = raw_documents[batch_start:batch_end]
-        
-    #     print(f"\nProcessing batch {batch_num+1}/{num_batches} (documents {start_doc_idx + batch_start} to {start_doc_idx + batch_end-1})...")
-        
-    #     # Split documents
-    #     print("Splitting documents...")
-    #     documents = document_splitter.process(batch_docs)
-        
-    #     # Transform to graph structure
-    #     print("Transforming documents to graph structure...")
-    #     graph_documents = graph_transformer.transform(documents)
-        
-    #     # Add to graph database
-    #     print("Adding documents to graph database...")
-    #     graph_db.add_graph_documents(graph_documents)
-        
-    #     # Update checkpoint after each successful batch
-    #     current_doc_idx = start_doc_idx + batch_end - 1
-    #     checkpoint_data = {
-    #         'source': source,
-    #         'query': query,
-    #         'split': split,
-    #         'last_completed_batch': batch_num,
-    #         'last_completed_doc': current_doc_idx,
-    #         'total_docs': total_docs + start_from,  # Original count including skipped docs
-    #         'batch_size': batch_size,
-    #         'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
-    #     }
-        
-    #     with open(checkpoint_file, 'w') as f:
-    #         json.dump(checkpoint_data, f, indent=2)
-        
-    #     print(f"Checkpoint saved. Completed through document {current_doc_idx}.")
-        
-    #     # Add delay between batches to prevent overloading
-    #     if batch_num < num_batches - 1:
-    #         print(f"Batch {batch_num+1} complete. Pausing briefly before next batch...")
-    #         time.sleep(1)
-    
-    # Create indexes after all batches are processed
-    # Check if we need to create indexes (might have been done in previous run)
-    # Use checkpoint to determine if this is the first run or continuing
-    need_indexes = True
-    # if checkpoint_exists:
-    #     if os.path.exists(os.path.join(checkpoint_dir, "indexes_created.flag")):
-    #         print("\nIndexes have been created in a previous run. Skipping index creation.")
-    #         need_indexes = False
-    
-    if need_indexes:
+    # Process in batches
+    start_doc_idx = start_from
+    try:
+        for batch_num in range(num_batches):
+            batch_start = batch_num * batch_size
+            batch_end = min(batch_start + batch_size, total_docs)
+            batch_docs = raw_documents[batch_start:batch_end]
+
+            print(f"\nProcessing batch {batch_num+1}/{num_batches} (documents {start_doc_idx + batch_start} to {start_doc_idx + batch_end-1})...")
+
+            # Split documents
+            print("Splitting documents...")
+            documents = document_splitter.process(batch_docs)
+
+            # Transform to graph structure
+            print("Transforming documents to graph structure...")
+            graph_documents = graph_transformer.transform(documents)
+
+            # Add to graph database
+            print("Adding documents to graph database...")
+            graph_db.add_graph_documents(graph_documents)
+
+            # Update checkpoint after each successful batch
+            current_doc_idx = start_doc_idx + batch_end - 1
+            print(f"Completed through document {current_doc_idx}.")
+
+            # Add delay between batches to prevent overloading
+            if batch_num < num_batches - 1:
+                print(f"Batch {batch_num+1} complete. Pausing briefly before next batch...")
+                time.sleep(1)
+
+    except Exception as e:
+        print(f"\nError encountered during batch {batch_num+1}: {e}. You need to start from {start_doc_idx + batch_start}")
+        print("Stopping further processing and creating vector index with processed data so far...")
+
+    finally:
         print("\nCreating entity index...")
         graph_db.create_entity_index()
-        
+
         print("Creating vector embeddings...")
         embeddings = OpenAIEmbeddings()
         vector_index = Neo4jVector.from_existing_graph(
@@ -152,24 +110,10 @@ def build_knowledge_graph(source: str, query: str = None, split: str = "train",
             text_node_properties=["text"],
             embedding_node_property="embedding"
         )
-        
-        # Mark that indexes have been created
-        with open(os.path.join(checkpoint_dir, "indexes_created.flag"), 'w') as f:
-            f.write("Indexes created at " + time.strftime('%Y-%m-%d %H:%M:%S'))
+
+        print("\nGraph building complete!")
+
     
-    print("\nGraph building complete!")
-    
-    # Mark processing as complete
-    with open(os.path.join(checkpoint_dir, "processing_complete.flag"), 'w') as f:
-        f.write("Processing completed at " + time.strftime('%Y-%m-%d %H:%M:%S'))
-    
-    # Visualize the graph
-    print("Generating graph visualization...")
-    visualizer = GraphVisualizer()
-    widget = visualizer.show_graph()
-    print("Graph visualization widget created.")
-    
-    return widget
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build a knowledge graph from Wikipedia or HotpotQA")
@@ -185,30 +129,9 @@ if __name__ == "__main__":
                        help="Number of documents to process in each batch")
     parser.add_argument("--start_from", type=int, default=0, 
                        help="Index of document to start processing from (0-indexed)")
-    parser.add_argument("--checkpoint_dir", type=str, default="./checkpoints",
-                       help="Directory to store checkpoint information")
-    parser.add_argument("--reset", action="store_true",
-                       help="Ignore checkpoints and start fresh")
     
     args = parser.parse_args()
     
-    # Handle reset flag
-    if args.reset:
-        checkpoint_file = os.path.join(
-            args.checkpoint_dir, 
-            f"kg_checkpoint_{args.source}_{args.split}_{args.query if args.query else 'no_query'}.json"
-        )
-        if os.path.exists(checkpoint_file):
-            os.remove(checkpoint_file)
-            print(f"Checkpoint file removed. Starting fresh from document {args.start_from}.")
-        
-        index_flag = os.path.join(args.checkpoint_dir, "indexes_created.flag")
-        if os.path.exists(index_flag):
-            os.remove(index_flag)
-        
-        complete_flag = os.path.join(args.checkpoint_dir, "processing_complete.flag")
-        if os.path.exists(complete_flag):
-            os.remove(complete_flag)
     
     try:
         build_knowledge_graph(
@@ -218,7 +141,6 @@ if __name__ == "__main__":
             max_docs=args.max_docs,
             batch_size=args.batch_size,
             start_from=args.start_from,
-            checkpoint_dir=args.checkpoint_dir
         )
     except KeyboardInterrupt:
         print("\n\nProcess interrupted by user. Progress has been saved to checkpoint.")

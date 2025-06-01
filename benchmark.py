@@ -10,10 +10,11 @@ from src.chains.adaptive_qa_chain import AdaptiveQAChain
 
 def main():
     parser = argparse.ArgumentParser(description='Evaluate RAG pipeline with HotpotQA')
-    parser.add_argument('--num_samples', type=int, default=3, help='Number of questions to evaluate')
+    parser.add_argument('--num_samples', type=int, default=1, help='Number of questions to evaluate')
+    parser.add_argument('--question_id', type=int, default=0, help='Add this argument if you want to check specific hotpot question')
     parser.add_argument('--output_dir', type=str, default='results', help='Output directory for results')
     parser.add_argument('--quiet', action='store_true', help='Suppress detailed output')
-    parser.add_argument('--mode', type=str, choices=['simple', 'standard', 'hybrid', 'adaptive'], 
+    parser.add_argument('--mode', type=str, choices=['simple', 'standard', 'hybrid', 'adaptive', 'kg', 'rerank'], 
                         help="Version of QA chain")
     args = parser.parse_args()
 
@@ -36,8 +37,9 @@ def main():
         args.output_dir, 
         f"rag_evaluation_{args.mode}_{timestamp}.json"
     )
+
     
-    hotpotqa = load_hotpotqa_data(num_samples=args.num_samples)
+    hotpotqa = load_hotpotqa_data(num_samples=args.num_samples, question_id=args.question_id)
     questions = hotpotqa['question']
     answers = hotpotqa['answer']
     supporting_sentences = []
@@ -48,10 +50,8 @@ def main():
                 idx = contex['title'].index(title)
                 sentence = contex['sentences'][idx][sent_id]
                 supporting_sentences_for_question.append(sentence)
-        supporting_sentences.append(supporting_sentences_for_question)
+        supporting_sentences.append(supporting_sentences_for_question) 
     
-    print(questions)
-    print(answers)
     
     evaluator = RAGEvaluator(qa_chain)
     print(f"Evaluating RAG pipeline with {args.num_samples} HotpotQA questions...")

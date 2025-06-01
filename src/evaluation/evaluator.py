@@ -73,7 +73,6 @@ class RAGEvaluator:
                     "retrieval_precision": retrieval_precision,
                     "retrieval_recall": retrieval_recall,
                     "retrieval_f1": retrieval_f1,
-                    "success": True,
                     "question_type": question_type
                 })
                 
@@ -83,35 +82,20 @@ class RAGEvaluator:
                     print(f"Model Answer: {answer}")
                     print(f"F1 Score: {f1:.4f} (Precision: {precision:.4f}, Recall: {recall:.4f})")
                     print(f"Exact Match: {em}")
+                    print(f"Retrieval F1 Score: {retrieval_f1:.4f} (Precision: {retrieval_precision:.4f}, Recall: {retrieval_recall:.4f})")
                     if question_type:
                         print(f"Question Type: {question_type}")
                     
                     print("-" * 80)
                 
             except Exception as e:
-                results.append({
-                    "question_id": i,
-                    "question": question,
-                    "reference_answer": reference_answer,
-                    "model_answer": None,
-                    "f1_score": 0.0,
-                    "precision": 0.0,
-                    "recall": 0.0,
-                    "exact_match": False,
-                    "retrieval_precision": 0.0,
-                    "retrieval_recall": 0.0,
-                    "retrieval_f1": 0.0,
-                    "question_type": None,
-                    "error": str(e),
-                    "success": False
-                })
-                
-                if verbose:
-                    print(f"\nError processing question {i+1}: {str(e)}")
+                print(f"\nError processing question {i+1}: {str(e)}")
+                break
+                    
         
         total_time = time.time() - start_time
         
-        num_successful = sum(1 for r in results if r["success"])
+        num_successful = len(results)
         avg_time_per_question = total_time / len(results) if results else 0
         avg_f1 = total_f1 / num_successful if num_successful > 0 else 0
         avg_em = total_em / num_successful if num_successful > 0 else 0
@@ -120,13 +104,11 @@ class RAGEvaluator:
         avg_retrieval_f1 = total_retrieval_f1 / num_successful if num_successful > 0 else 0
 
         question_type_counts = Counter(
-            r["question_type"] for r in results if r["success"] and r["question_type"]
+            r["question_type"] for r in results if r["question_type"]
         )
         
         metrics = {
             "total_questions": len(results),
-            "successful_responses": num_successful,
-            "success_rate": num_successful / len(results) if results else 0,
             "total_time": total_time,
             "avg_time_per_question": avg_time_per_question,
             "avg_f1_score": avg_f1,
@@ -144,9 +126,8 @@ class RAGEvaluator:
         print("\n" + "="*80)
         print("EVALUATION RESULTS:")
         print(f"Total questions processed: {metrics['total_questions']}")
-        print(f"Successful responses: {metrics['successful_responses']}")
-        print(f"Success rate: {metrics['success_rate'] * 100:.2f}%")
         print(f"Average F1 score: {metrics['avg_f1_score']:.4f}")
+        print(f"Average Retrieval F1 score: {metrics['avg_retrieval_f1']:.4f}")
         print(f"Average Exact Match score: {metrics['avg_exact_match']:.4f}")
         print(f"Total processing time: {metrics['total_time']:.2f} seconds")
         print(f"Average time per question: {metrics['avg_time_per_question']:.2f} seconds"),
