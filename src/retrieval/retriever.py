@@ -1,7 +1,7 @@
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Neo4jVector
 from langchain_openai import ChatOpenAI
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from src.graph.database import GraphDatabase
 from src.retrieval.entity_extractor import EntityExtractor
 from src.retrieval.query_utils import generate_full_text_query
@@ -145,10 +145,6 @@ class KGRetriever:
         return top_docs
 
 
-import numpy as np
-from typing import List, Dict
-
-
 class SmartKGRetriever:
     def __init__(self, embedding_model: str = DEFAULT_EMBEDDING_MODEL):
         self.entity_extractor = EntityExtractor()
@@ -252,7 +248,7 @@ class RerankRetriever:
         response = self.llm.invoke([HumanMessage(content=prompt)])
         try:
             selected_indices = eval(response.content)
-        except:
+        except Exception:
             selected_indices = []
 
         selected_docs = [

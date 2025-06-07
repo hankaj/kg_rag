@@ -1,4 +1,3 @@
-import sys
 import argparse
 from src.chains.qa_chain import QAChain
 from src.chains.simple_qa_chain import SimpleQAChain

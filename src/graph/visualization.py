@@ -1,7 +1,6 @@
 from neo4j import GraphDatabase
 from yfiles_jupyter_graphs import GraphWidget
 from src.config.settings import NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD
-import os
 
 
 class GraphVisualizer:

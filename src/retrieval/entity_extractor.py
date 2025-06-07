@@ -1,7 +1,7 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from src.models.entities import Entities
-from src.config.settings import OPENAI_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
+from src.config.settings import OPENAI_LLM_MODEL
 
 
 class EntityExtractor:

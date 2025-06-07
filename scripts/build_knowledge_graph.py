@@ -1,13 +1,9 @@
 import argparse
-import os
-import json
 import time
-from tqdm import tqdm
 from src.data.loaders import WikipediaDataLoader, HotpotQADataLoader
 from src.data.processors import DocumentSplitter
 from src.graph.database import GraphDatabase
 from src.graph.transformers import GraphTransformer
-from src.graph.visualization import GraphVisualizer
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Neo4jVector
 
@@ -46,10 +42,6 @@ def build_knowledge_graph(
     raw_documents = data_loader.load()
     total_docs = len(raw_documents)
     print(f"Loaded {total_docs} raw documents")
-
-    # Load or initialize checkpoint
-    last_completed_batch = -1
-    last_completed_doc = start_from - 1
 
     # Skip documents if starting from a specific index
     if start_from > 0:
@@ -121,7 +113,7 @@ def build_knowledge_graph(
 
         print("Creating vector embeddings...")
         embeddings = OpenAIEmbeddings()
-        vector_index = Neo4jVector.from_existing_graph(
+        Neo4jVector.from_existing_graph(
             embeddings,
             search_type="hybrid",
             node_label="Document",

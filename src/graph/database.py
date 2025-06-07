@@ -7,7 +7,6 @@ from src.config.settings import (
     BASE_ENTITY_LABEL,
     INCLUDE_SOURCE,
 )
-from neo4j import GraphDatabase
 
 
 class GraphDatabase:
