@@ -55,10 +55,12 @@ class StandardRetriever:
             embedding_node_property="embedding"
         )
         
-    def retrieve(self, question: str, k: int = 4) -> Tuple[List[str], List[str]]:
+    def retrieve(self, question: str, k: int = 4, with_scores=False) -> Tuple[List[str], List[str]]:
         sanitized_question = remove_lucene_chars(question)
-        docs = self.vector_store.similarity_search(sanitized_question, k=k)
-        return [doc.page_content[7:] for doc in docs]
+        docs = self.vector_store.similarity_search_with_score(sanitized_question, k=k)
+        if with_scores:
+            return [{'text': doc.page_content[7:], 'score': score} for doc, score in docs]
+        return [doc.page_content[7:] for doc, score in docs]
 
 
 class HybridRetriever:
@@ -147,21 +149,14 @@ class SmartKGRetriever:
         self.embeddings = OpenAIEmbeddings(model=embedding_model)
         
     def retrieve(self, question: str) -> List[str]:
-        # Get more candidates from graph
         candidates = self._get_candidates(question)
         if not candidates:
             return []
-        
-        # Score and rank
         ranked_docs = self._rank_documents(question, candidates)
         
-        # Smart selection instead of just top-2
-        selected = self._select_best_docs(ranked_docs)
-        
-        return [doc['text'] for doc in selected]
+        return [doc for doc in ranked_docs]
     
     def _get_candidates(self, question: str) -> List[Dict]:
-        """Get candidates from graph with better coverage"""
         entities = self.entity_extractor.extract(question)
         candidates = []
         
@@ -171,7 +166,7 @@ class SmartKGRetriever:
             CALL db.index.fulltext.queryNodes('entity', $query, {limit:5}) YIELD node, score
             MATCH (node)<-[:MENTIONS]-(doc:Document)
             
-            OPTIONAL MATCH (node)-[:RELATED_TO*1..2]-(related:Entity)
+            OPTIONAL MATCH (node)-[*1..2]-(related:Entity)
             OPTIONAL MATCH (related)<-[:MENTIONS]-(related_doc:Document)
             
             WITH collect(DISTINCT doc) + collect(DISTINCT related_doc) AS all_docs
@@ -215,69 +210,19 @@ class SmartKGRetriever:
         
         return sorted(candidates, key=lambda x: x['score'], reverse=True)
     
-    def _select_best_docs(self, ranked_docs: List[Dict]) -> List[Dict]:
-        """Smart selection instead of just top-2"""
-        if not ranked_docs:
-            return []
-        
-        # Always include the best document
-        selected = [ranked_docs[0]]
-        
-        # Determine how many more to include based on score gaps
-        for i in range(1, min(len(ranked_docs), 6)):  # Max 6 docs
-            current_score = ranked_docs[i]['score']
-            top_score = ranked_docs[0]['score']
-            
-            # Include if score is decent (above threshold)
-            if current_score > 0.3:
-                # Check if it's too similar to already selected docs
-                if not self._too_similar(ranked_docs[i], selected):
-                    selected.append(ranked_docs[i])
-            
-            # Stop if score drops significantly
-            if top_score - current_score > 0.4:
-                break
-            
-            # Stop if we have enough good documents
-            if len(selected) >= 4 and current_score < 0.5:
-                break
-        
-        # Ensure we have at least 2 documents if available
-        if len(selected) == 1 and len(ranked_docs) > 1:
-            if not self._too_similar(ranked_docs[1], selected):
-                selected.append(ranked_docs[1])
-        
-        return selected
-    
-    def _too_similar(self, doc: Dict, selected_docs: List[Dict]) -> bool:
-        """Check if document is too similar to already selected ones"""
-        # if not selected_docs:
-        #     return False
-        
-        # doc_embedding = np.array(self.embeddings.embed_query(doc['text']))
-        
-        # for selected in selected_docs:
-        #     selected_embedding = np.array(self.embeddings.embed_query(selected['text']))
-        #     similarity = np.dot(doc_embedding, selected_embedding) / (
-        #         np.linalg.norm(doc_embedding) * np.linalg.norm(selected_embedding) + 1e-10
-        #     )
-            
-        #     # If too similar to any selected doc, skip it
-        #     if similarity > 0.8:
-        #         return True
-        
-        return False
-    
+   
 class RerankRetriever:
     def __init__(self, llm: ChatOpenAI):
-        self.structured_retriever = SmartKGRetriever()
+        self.kg_retriever = SmartKGRetriever()
         self.standard_retriever = StandardRetriever()
         self.llm = llm
         
     def retrieve(self, question: str) -> Tuple[str, List[str]]:
-        standard_data = self.structured_retriever.retrieve(question)
-        kg_data = self.standard_retriever.retrieve(question)
-        combined_results = list(set(standard_data + kg_data))
+        standard_data = self.standard_retriever.retrieve(question, k=6, with_scores=True)
+        selected_standard_data = self._select_best_docs(standard_data)
+        kg_data = self.kg_retriever.retrieve(question)
+        selected_kg_data = self._select_best_docs(kg_data)
+        combined_results = list(set(selected_standard_data + selected_kg_data))
         chosen_docs = self.select_relevant_documents(question, combined_results)
         return chosen_docs
     
@@ -298,3 +243,34 @@ class RerankRetriever:
 
         selected_docs = [documents[i - 1] for i in selected_indices if 0 < i <= len(documents)]
         return selected_docs
+    
+    def _select_best_docs(self, ranked_docs: List[Dict]) -> List[Dict]:
+        """Smart selection instead of just top-2"""
+        if not ranked_docs:
+            return []
+        
+        selected = [ranked_docs[0]]
+        
+        # Determine how many more to include based on score gaps
+        for i in range(1, min(len(ranked_docs), 6)):  # Max 6 docs
+            current_score = ranked_docs[i]['score']
+            top_score = ranked_docs[0]['score']
+            
+            # Include if score is decent (above threshold)
+            if current_score > 0.3:
+                selected.append(ranked_docs[i])
+            
+            # Stop if score drops significantly
+            if top_score - current_score > 0.4:
+                break
+            
+            # Stop if we have enough good documents
+            if len(selected) >= 4 and current_score < 0.5:
+                break
+        
+        # Ensure we have at least 2 documents if available
+        if len(selected) == 1 and len(ranked_docs) > 1:
+            if not self._too_similar(ranked_docs[1], selected):
+                selected.append(ranked_docs[1])
+        
+        return [doc['text'] for doc in selected]

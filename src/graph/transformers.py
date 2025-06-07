@@ -33,4 +33,9 @@ class GraphTransformer:
         Returns:
             List of graph documents
         """
-        return self.transformer.convert_to_graph_documents(documents)
+        documents = self.transformer.convert_to_graph_documents(documents)
+        for doc in documents:
+            for node in doc.nodes:
+                if node.type == '':
+                    node.type = 'Other'
+        return documents

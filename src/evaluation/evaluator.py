@@ -27,7 +27,7 @@ class RAGEvaluator:
     def __init__(self, qa_chain):
         self.qa_chain = qa_chain
     
-    def evaluate(self, questions: List[str], answers: List[str], supporting_sentences: List[str], verbose: bool = True) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
+    def evaluate(self, questions: List[str], answers: List[str], supporting_sentences: List[str], start_id: int, verbose: bool = True) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
 
         results = []
         start_time = time.time()
@@ -62,7 +62,7 @@ class RAGEvaluator:
                 total_retrieval_f1 += retrieval_f1
                 
                 results.append({
-                    "question_id": i,
+                    "question_id": start_id + i,
                     "question": question,
                     "reference_answer": reference_answer,
                     "model_answer": answer,
