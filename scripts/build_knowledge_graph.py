@@ -11,13 +11,19 @@ from src.graph.visualization import GraphVisualizer
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Neo4jVector
 
-def build_knowledge_graph(source: str, query: str = None, split: str = "train", 
-                         max_docs: int = None, batch_size: int = 50, 
-                         start_from: int = 0):
+
+def build_knowledge_graph(
+    source: str,
+    query: str = None,
+    split: str = "train",
+    max_docs: int = None,
+    batch_size: int = 50,
+    start_from: int = 0,
+):
     """
     Build a knowledge graph from either Wikipedia or HotpotQA with batch processing
     and checkpointing for resumable execution
-    
+
     Args:
         source: Data source ('wikipedia' or 'hotpotqa')
         query: Wikipedia search query (only for Wikipedia source)
@@ -36,32 +42,36 @@ def build_knowledge_graph(source: str, query: str = None, split: str = "train",
         data_loader = HotpotQADataLoader(split=split, load_max_docs=max_docs)
     else:
         raise ValueError(f"Unknown source '{source}'. Use 'wikipedia' or 'hotpotqa'.")
-    
+
     raw_documents = data_loader.load()
     total_docs = len(raw_documents)
     print(f"Loaded {total_docs} raw documents")
-    
+
     # Load or initialize checkpoint
     last_completed_batch = -1
     last_completed_doc = start_from - 1
-    
+
     # Skip documents if starting from a specific index
     if start_from > 0:
         if start_from >= total_docs:
-            raise ValueError(f"start_from={start_from} exceeds the number of documents ({total_docs})")
+            raise ValueError(
+                f"start_from={start_from} exceeds the number of documents ({total_docs})"
+            )
         print(f"Skipping first {start_from} documents...")
         raw_documents = raw_documents[start_from:]
         total_docs = len(raw_documents)
-    
+
     # Calculate number of batches
     num_batches = (total_docs + batch_size - 1) // batch_size  # Ceiling division
-    print(f"Processing {total_docs} documents in {num_batches} batches (batch_size={batch_size})...")
-    
+    print(
+        f"Processing {total_docs} documents in {num_batches} batches (batch_size={batch_size})..."
+    )
+
     # Initialize components
     document_splitter = DocumentSplitter()
     graph_transformer = GraphTransformer()
     graph_db = GraphDatabase()
-    
+
     # Process in batches
     start_doc_idx = start_from
     try:
@@ -70,7 +80,9 @@ def build_knowledge_graph(source: str, query: str = None, split: str = "train",
             batch_end = min(batch_start + batch_size, total_docs)
             batch_docs = raw_documents[batch_start:batch_end]
 
-            print(f"\nProcessing batch {batch_num+1}/{num_batches} (documents {start_doc_idx + batch_start} to {start_doc_idx + batch_end-1})...")
+            print(
+                f"\nProcessing batch {batch_num + 1}/{num_batches} (documents {start_doc_idx + batch_start} to {start_doc_idx + batch_end - 1})..."
+            )
 
             # Split documents
             print("Splitting documents...")
@@ -90,12 +102,18 @@ def build_knowledge_graph(source: str, query: str = None, split: str = "train",
 
             # Add delay between batches to prevent overloading
             if batch_num < num_batches - 1:
-                print(f"Batch {batch_num+1} complete. Pausing briefly before next batch...")
+                print(
+                    f"Batch {batch_num + 1} complete. Pausing briefly before next batch..."
+                )
                 time.sleep(1)
 
     except Exception as e:
-        print(f"\nError encountered during batch {batch_num+1}: {e}. You need to start from {start_doc_idx + batch_start}")
-        print("Stopping further processing and creating vector index with processed data so far...")
+        print(
+            f"\nError encountered during batch {batch_num + 1}: {e}. You need to start from {start_doc_idx + batch_start}"
+        )
+        print(
+            "Stopping further processing and creating vector index with processed data so far..."
+        )
 
     finally:
         print("\nCreating entity index...")
@@ -108,36 +126,58 @@ def build_knowledge_graph(source: str, query: str = None, split: str = "train",
             search_type="hybrid",
             node_label="Document",
             text_node_properties=["text"],
-            embedding_node_property="embedding"
+            embedding_node_property="embedding",
         )
 
         print("\nGraph building complete!")
 
-    
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Build a knowledge graph from Wikipedia or HotpotQA")
-    parser.add_argument("--source", type=str, choices=["wikipedia", "hotpotqa"], required=True, 
-                       help="Data source: 'wikipedia' or 'hotpotqa'")
-    parser.add_argument("--query", type=str, default=None, 
-                       help="Wikipedia query (only for Wikipedia source)")
-    parser.add_argument("--split", type=str, default="train", 
-                       help="HotpotQA split to use (train/dev/test)")
-    parser.add_argument("--max_docs", type=int, default=None, 
-                       help="Maximum number of documents to load")
-    parser.add_argument("--batch_size", type=int, default=50, 
-                       help="Number of documents to process in each batch")
-    parser.add_argument("--start_from", type=int, default=0, 
-                       help="Index of document to start processing from (0-indexed)")
-    
+    parser = argparse.ArgumentParser(
+        description="Build a knowledge graph from Wikipedia or HotpotQA"
+    )
+    parser.add_argument(
+        "--source",
+        type=str,
+        choices=["wikipedia", "hotpotqa"],
+        required=True,
+        help="Data source: 'wikipedia' or 'hotpotqa'",
+    )
+    parser.add_argument(
+        "--query",
+        type=str,
+        default=None,
+        help="Wikipedia query (only for Wikipedia source)",
+    )
+    parser.add_argument(
+        "--split",
+        type=str,
+        default="train",
+        help="HotpotQA split to use (train/dev/test)",
+    )
+    parser.add_argument(
+        "--max_docs", type=int, default=None, help="Maximum number of documents to load"
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=50,
+        help="Number of documents to process in each batch",
+    )
+    parser.add_argument(
+        "--start_from",
+        type=int,
+        default=0,
+        help="Index of document to start processing from (0-indexed)",
+    )
+
     args = parser.parse_args()
-    
-    
+
     try:
         build_knowledge_graph(
-            source=args.source, 
-            query=args.query, 
-            split=args.split, 
+            source=args.source,
+            query=args.query,
+            split=args.split,
             max_docs=args.max_docs,
             batch_size=args.batch_size,
             start_from=args.start_from,

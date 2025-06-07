@@ -8,44 +8,66 @@ from src.chains.qa_chain import QAChain
 from src.chains.simple_qa_chain import SimpleQAChain
 from src.chains.adaptive_qa_chain import AdaptiveQAChain
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Evaluate RAG pipeline with HotpotQA')
-    parser.add_argument('--num_samples', type=int, default=1, help='Number of questions to evaluate')
-    parser.add_argument('--question_id', type=int, default=0, help='Add this argument if you want to check specific hotpot question')
-    parser.add_argument('--output_dir', type=str, default='results', help='Output directory for results')
-    parser.add_argument('--quiet', action='store_true', help='Suppress detailed output')
-    parser.add_argument('--mode', type=str, choices=['simple', 'standard', 'hybrid', 'adaptive', 'kg', 'rerank'], 
-                        help="Version of QA chain")
+    parser = argparse.ArgumentParser(description="Evaluate RAG pipeline with HotpotQA")
+    parser.add_argument(
+        "--num_samples", type=int, default=1, help="Number of questions to evaluate"
+    )
+    parser.add_argument(
+        "--question_id",
+        type=int,
+        default=0,
+        help="Add this argument if you want to check specific hotpot question",
+    )
+    parser.add_argument(
+        "--output_dir", type=str, default="results", help="Output directory for results"
+    )
+    parser.add_argument("--quiet", action="store_true", help="Suppress detailed output")
+    parser.add_argument(
+        "--mode",
+        type=str,
+        choices=["simple", "standard", "hybrid", "adaptive", "kg", "rerank"],
+        help="Version of QA chain",
+    )
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    if args.mode == 'simple':
+    if args.mode == "simple":
         qa_chain = SimpleQAChain()
-    elif args.mode == 'adaptive':
+    elif args.mode == "adaptive":
         qa_chain = AdaptiveQAChain()
     else:
         qa_chain = QAChain(retrieval=args.mode)
 
     output_file = os.path.join(args.output_dir, f"rag_evaluation_{args.mode}.json")
 
-    hotpotqa = load_hotpotqa_data(num_samples=args.num_samples, question_id=args.question_id)
-    questions = hotpotqa['question']
-    answers = hotpotqa['answer']
+    hotpotqa = load_hotpotqa_data(
+        num_samples=args.num_samples, question_id=args.question_id
+    )
+    questions = hotpotqa["question"]
+    answers = hotpotqa["answer"]
     supporting_sentences = []
-    for facts, contex in zip(hotpotqa['supporting_facts'], hotpotqa['context']):
+    for facts, contex in zip(hotpotqa["supporting_facts"], hotpotqa["context"]):
         supporting_sentences_for_question = []
-        for title, sent_id in zip(facts['title'], facts['sent_id']):
-            if title in contex['title']:
-                idx = contex['title'].index(title)
-                sentence = contex['sentences'][idx][sent_id]
+        for title, sent_id in zip(facts["title"], facts["sent_id"]):
+            if title in contex["title"]:
+                idx = contex["title"].index(title)
+                sentence = contex["sentences"][idx][sent_id]
                 supporting_sentences_for_question.append(sentence)
-        supporting_sentences.append(supporting_sentences_for_question) 
+        supporting_sentences.append(supporting_sentences_for_question)
 
     evaluator = RAGEvaluator(qa_chain)
     print(f"Evaluating RAG pipeline with {args.num_samples} HotpotQA questions...")
-    results, metrics = evaluator.evaluate(questions, answers, supporting_sentences, args.question_id, verbose=not args.quiet)
+    results, metrics = evaluator.evaluate(
+        questions,
+        answers,
+        supporting_sentences,
+        args.question_id,
+        verbose=not args.quiet,
+    )
     evaluator.print_summary(metrics)
 
     # Load existing data if file exists
@@ -64,13 +86,25 @@ def main():
         merged_metrics = {
             "total_questions": total_count,
             "total_time": old_metrics["total_time"] + metrics["total_time"],
-            "avg_time_per_question": (old_metrics["total_time"] + metrics["total_time"]) / total_count,
-            "avg_f1_score": weighted_avg(old_metrics["avg_f1_score"], metrics["avg_f1_score"]),
-            "avg_exact_match": weighted_avg(old_metrics["avg_exact_match"], metrics["avg_exact_match"]),
-            "avg_retrieval_precision": weighted_avg(old_metrics["avg_retrieval_precision"], metrics["avg_retrieval_precision"]),
-            "avg_retrieval_recall": weighted_avg(old_metrics["avg_retrieval_recall"], metrics["avg_retrieval_recall"]),
-            "avg_retrieval_f1": weighted_avg(old_metrics["avg_retrieval_f1"], metrics["avg_retrieval_f1"]),
-            "question_type_counts": {}
+            "avg_time_per_question": (old_metrics["total_time"] + metrics["total_time"])
+            / total_count,
+            "avg_f1_score": weighted_avg(
+                old_metrics["avg_f1_score"], metrics["avg_f1_score"]
+            ),
+            "avg_exact_match": weighted_avg(
+                old_metrics["avg_exact_match"], metrics["avg_exact_match"]
+            ),
+            "avg_retrieval_precision": weighted_avg(
+                old_metrics["avg_retrieval_precision"],
+                metrics["avg_retrieval_precision"],
+            ),
+            "avg_retrieval_recall": weighted_avg(
+                old_metrics["avg_retrieval_recall"], metrics["avg_retrieval_recall"]
+            ),
+            "avg_retrieval_f1": weighted_avg(
+                old_metrics["avg_retrieval_f1"], metrics["avg_retrieval_f1"]
+            ),
+            "question_type_counts": {},
         }
 
         merged_qtype_counts = old_metrics.get("question_type_counts", {})
@@ -89,10 +123,10 @@ def main():
                 "created": timestamp,
                 "last_appended": timestamp,
                 "algorithm_version": args.mode,
-                "num_samples": args.num_samples
+                "num_samples": args.num_samples,
             },
             "results": results,
-            "metrics": metrics
+            "metrics": metrics,
         }
 
     with open(output_file, "w") as f:
