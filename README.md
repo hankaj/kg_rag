@@ -1,10 +1,14 @@
 # Knowledge Graph QA System
 
+This repository contains the codebase developed for the master's thesis **"Knowledge Graphs for Retrieval-Augmented Generation"**, authored by *Hanna Jarlaczyńska* at *AGH University of Science and Technology*.
+
+
+## Overview
+
 This project implements a question-answering system using:
 - Knowledge graphs built from document collections
 - LLM-based entity extraction and graph transformation
 - Hybrid retrieval combining vector search and graph traversal
-- Chat history management for follow-up questions
 
 ## Setup
 
@@ -21,11 +25,6 @@ This project implements a question-answering system using:
 ### Building the Knowledge Graph
 ```bash
 python -m scripts.build_knowledge_graph
-```
-
-### Interactive QA
-```bash
-python -m scripts.interactive_qa
 ```
 
 See the documentation in each module for more details.
