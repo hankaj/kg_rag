@@ -181,13 +181,6 @@ Answer:"""
         self.graph = graph.compile()
 
     def invoke(self, input_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Invoke the QA chain
-        Args:
-            input_dict: Input dictionary with 'question'
-        Returns:
-            Dictionary with answer and metadata
-        """
         # Initialize state with input
         state = QAState(
             question=input_dict["question"],
@@ -208,12 +201,5 @@ Answer:"""
         }
 
     def run(self, question: str) -> str:
-        """
-        Run the QA chain with a question
-        Args:
-            question: User question
-        Returns:
-            Answer to the question
-        """
         result = self.invoke({"question": question})
         return result

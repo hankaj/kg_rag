@@ -49,23 +49,11 @@ class FolderDataLoader(DataLoader):
         glob_pattern: str = "**/*.*",
         load_max_docs: Optional[int] = None,
     ):
-        """
-        Initialize the folder loader
-        Args:
-            folder_path: Path to the folder containing documents
-            glob_pattern: Pattern to match files (default: all files in all subdirectories)
-            load_max_docs: Maximum number of documents to load
-        """
         self.folder_path = folder_path
         self.glob_pattern = glob_pattern
         self.load_max_docs = load_max_docs
 
     def load(self) -> List[Document]:
-        """
-        Load documents from folder
-        Returns:
-            List of documents
-        """
         if not os.path.exists(self.folder_path):
             raise FileNotFoundError(f"Folder path does not exist: {self.folder_path}")
 
@@ -82,23 +70,10 @@ class HotpotQADataLoader:
     """Loads data from the HotpotQA dataset"""
 
     def __init__(self, load_max_docs: int = None, split: str = "train"):
-        """
-        Initialize the HotpotQA loader
-
-        Args:
-            load_max_docs: Maximum number of documents to load
-            split: The split of the dataset to load (train, dev, test)
-        """
         self.load_max_docs = load_max_docs
         self.split = split
 
     def load(self) -> List[Document]:
-        """
-        Load documents from HotpotQA
-
-        Returns:
-            List of documents
-        """
         dataset = load_dataset("hotpot_qa", "distractor", split=self.split)
 
         documents = []

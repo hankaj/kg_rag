@@ -16,12 +16,6 @@ class SimpleQAChain:
     """Simple question-answering chain using LangGraph without retrieval"""
 
     def __init__(self, model_name: str = DEFAULT_LLM_MODEL):
-        """
-        Initialize the Simple QA chain
-
-        Args:
-            model_name: Name of the LLM model to use
-        """
         self.llm = ChatOpenAI(
             model=DEFAULT_LLM_MODEL,
             temperature=0,
@@ -70,15 +64,6 @@ Answer:"""
         self.graph = graph.compile()
 
     def invoke(self, input_dict: Dict[str, Any]) -> str:
-        """
-        Invoke the QA chain
-
-        Args:
-            input_dict: Input dictionary with 'question'
-
-        Returns:
-            Answer to the question
-        """
         # Initialize state with input
         state = SimpleQAState(question=input_dict["question"], answer=None)
 
@@ -89,13 +74,4 @@ Answer:"""
         return result
 
     def run(self, question: str) -> str:
-        """
-        Run the QA chain with a question
-
-        Args:
-            question: User question
-
-        Returns:
-            Answer to the question
-        """
         return self.invoke({"question": question})

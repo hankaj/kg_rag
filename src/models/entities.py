@@ -3,7 +3,6 @@ from typing import List
 
 
 class Entities(BaseModel):
-    """Identifying information about entities."""
 
     names: List[str] = Field(
         ...,
