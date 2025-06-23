@@ -3,7 +3,7 @@ from typing import Dict, List, Any, Tuple
 from collections import Counter
 from tqdm import tqdm
 
-from src.evaluation.metrics import f1_score, exact_match_score
+from src.evaluation.metrics import f1_score, exact_match_score, cosine_similarity_score
 
 
 def calculate_retrieval_metrics(
@@ -12,15 +12,20 @@ def calculate_retrieval_metrics(
     if not retrieved_facts or not supporting_sentences:
         return 0.0, 0.0, 0.0
 
-    relevant_retrieved = 0
-    for sentence in supporting_sentences:
-        for fact in retrieved_facts:
-            if sentence.lower() in fact.lower():
-                relevant_retrieved += 1
-                break
+    relevant_facts = 0
+    for fact in retrieved_facts:
+        relevant_facts += any(
+            sentence.lower() in fact.lower() for sentence in supporting_sentences
+        )
 
-    precision = relevant_retrieved / len(retrieved_facts)
-    recall = relevant_retrieved / len(supporting_sentences)
+    retrieved_sentences = 0
+    for sentence in supporting_sentences:
+        retrieved_sentences += any(
+            sentence.lower() in fact.lower() for fact in retrieved_facts
+        )
+
+    precision = relevant_facts / len(retrieved_facts)
+    recall = retrieved_sentences / len(supporting_sentences)
     f1 = (
         2 * precision * recall / (precision + recall)
         if (precision + recall) > 0
@@ -47,6 +52,9 @@ class RAGEvaluator:
 
         total_f1 = 0.0
         total_em = 0
+        total_precision = 0.0
+        total_recall = 0.0
+        total_similarity = 0.0
         total_retrieval_precision = 0.0
         total_retrieval_recall = 0.0
         total_retrieval_f1 = 0.0
@@ -55,11 +63,12 @@ class RAGEvaluator:
             tqdm(zip(questions, answers, supporting_sentences))
         ):
             try:
+                time.sleep(0.5)
                 result = self.qa_chain.run(question)
                 answer = result["answer"]
                 question_type = result.get("question_type", None)
 
-                retrieved_docs = result["context"]
+                retrieved_docs = result.get("context")
 
                 # Calculate retrieval metrics
                 retrieval_precision, retrieval_recall, retrieval_f1 = (
@@ -69,8 +78,13 @@ class RAGEvaluator:
                 f1, precision, recall = f1_score(answer, reference_answer)
                 em = exact_match_score(answer, reference_answer)
 
+                similarity_score = cosine_similarity_score(answer, reference_answer)
+
                 total_f1 += f1
                 total_em += int(em)
+                total_precision += precision
+                total_recall += recall
+                total_similarity += similarity_score
                 total_retrieval_precision += retrieval_precision
                 total_retrieval_recall += retrieval_recall
                 total_retrieval_f1 += retrieval_f1
@@ -85,6 +99,7 @@ class RAGEvaluator:
                         "precision": precision,
                         "recall": recall,
                         "exact_match": em,
+                        "similarity_score": similarity_score,
                         "retrieval_precision": retrieval_precision,
                         "retrieval_recall": retrieval_recall,
                         "retrieval_f1": retrieval_f1,
@@ -99,6 +114,7 @@ class RAGEvaluator:
                     print(
                         f"F1 Score: {f1:.4f} (Precision: {precision:.4f}, Recall: {recall:.4f})"
                     )
+                    print(f"Similarity Score: {similarity_score:.4f}")
                     print(f"Exact Match: {em}")
                     print(
                         f"Retrieval F1 Score: {retrieval_f1:.4f} (Precision: {retrieval_precision:.4f}, Recall: {retrieval_recall:.4f})"
@@ -118,6 +134,9 @@ class RAGEvaluator:
         avg_time_per_question = total_time / len(results) if results else 0
         avg_f1 = total_f1 / num_successful if num_successful > 0 else 0
         avg_em = total_em / num_successful if num_successful > 0 else 0
+        avg_precision = total_precision / num_successful if num_successful > 0 else 0
+        avg_recall = total_recall / num_successful if num_successful > 0 else 0
+        avg_similarity = total_similarity / num_successful if num_successful > 0 else 0
         avg_retrieval_precision = (
             total_retrieval_precision / num_successful if num_successful > 0 else 0
         )
@@ -138,6 +157,9 @@ class RAGEvaluator:
             "avg_time_per_question": avg_time_per_question,
             "avg_f1_score": avg_f1,
             "avg_exact_match": avg_em,
+            "avg_precision": avg_precision,
+            "avg_recall": avg_recall,
+            "avg_similarity": avg_similarity,
             "avg_retrieval_precision": avg_retrieval_precision,
             "avg_retrieval_recall": avg_retrieval_recall,
             "avg_retrieval_f1": avg_retrieval_f1,
@@ -152,6 +174,7 @@ class RAGEvaluator:
         print("EVALUATION RESULTS:")
         print(f"Total questions processed: {metrics['total_questions']}")
         print(f"Average F1 score: {metrics['avg_f1_score']:.4f}")
+        print(f"Average similarity score: {metrics['avg_similarity']:.4f}")
         print(f"Average Retrieval F1 score: {metrics['avg_retrieval_f1']:.4f}")
         print(f"Average Exact Match score: {metrics['avg_exact_match']:.4f}")
         print(f"Total processing time: {metrics['total_time']:.2f} seconds")

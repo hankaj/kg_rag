@@ -27,7 +27,6 @@ def build_knowledge_graph(
         max_docs: Maximum number of documents to load
         batch_size: Number of documents to process in each batch
         start_from: Index of document to start processing from
-        checkpoint_dir: Directory to store checkpoint information
     """
     print(f"Loading data from source='{source}'...")
     if source == "wikipedia":

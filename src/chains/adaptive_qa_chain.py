@@ -2,7 +2,7 @@ from typing import Dict, Any, TypedDict, Optional, Literal
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from src.retrieval.retriever import HybridRetriever, StandardRetriever
+from src.retrieval.retriever import RerankRetriever, StandardRetriever
 from src.config.settings import DEFAULT_LLM_MODEL, GROQ_API_KEY, GROQ_API_URL
 
 
@@ -18,7 +18,7 @@ class QAState(TypedDict):
 class AdaptiveQAChain:
     """
     Question-answering chain using LangGraph with intelligent routing
-    between no RAG, standard RAG, and hybrid RAG approaches based on question complexity
+    between no RAG, standard RAG, and KG RAG approaches based on question complexity
     """
 
     def __init__(self, model_name: str = DEFAULT_LLM_MODEL):
@@ -36,7 +36,7 @@ class AdaptiveQAChain:
 
         # Initialize retrievers
         self.standard_retriever = StandardRetriever()
-        self.hybrid_retriever = HybridRetriever()
+        self.kg_retriever = RerankRetriever(self.llm)
 
         # Set up the router template
         router_template = """You need to determine the best approach to answer the following question:
@@ -45,9 +45,9 @@ Question: {question}
 Choose exactly ONE of the following approaches:
 1. "no_rag" - For simple questions that can be answered with the model's internal knowledge (general knowledge, facts, common concepts)
 2. "standard_rag" - For questions needing specific information retrieval but minimal relationship analysis
-3. "hybrid_rag" - For questions needing retrieval involving entity relationships or connections between concepts.
+3. "kg_rag" - For questions needing retrieval involving entity relationships or connections between concepts.
 
-Reply with just one of these options (no_rag, standard_rag, or hybrid_rag) based on which approach would best answer the question.
+Reply with just one of these options (no_rag, standard_rag, or kg_rag) based on which approach would best answer the question.
 """
         self.router_prompt = ChatPromptTemplate.from_template(router_template)
 
@@ -91,8 +91,8 @@ Answer:"""
             # Normalize to one of our expected values
             if "no_rag" in question_type:
                 question_type = "no_rag"
-            elif "hybrid_rag" in question_type:
-                question_type = "hybrid_rag"
+            elif "kg_rag" in question_type:
+                question_type = "kg_rag"
             else:
                 question_type = "standard_rag"
 
@@ -103,9 +103,9 @@ Answer:"""
             context = self.standard_retriever.retrieve(state["question"])
             return {"context": context}
 
-        def retrieve_hybrid(state: QAState) -> Dict:
-            """Retrieve relevant documents using hybrid retriever with knowledge graph"""
-            context = self.hybrid_retriever.retrieve(state["question"])
+        def retrieve_kg(state: QAState) -> Dict:
+            """Retrieve relevant documents using KG retriever with knowledge graph"""
+            context = self.kg_retriever.retrieve(state["question"])
             return {"context": context}
 
         def generate_answer_with_context(state: QAState) -> Dict:
@@ -131,10 +131,10 @@ Answer:"""
         # Define the conditional routing function
         def route_by_question_type(
             state: QAState,
-        ) -> Literal["standard_retrieval", "hybrid_retrieval", "no_retrieval"]:
+        ) -> Literal["standard_retrieval", "kg_retrieval", "no_retrieval"]:
             """Route to the appropriate retrieval method based on question type"""
-            if state["question_type"] == "hybrid_rag":
-                return "hybrid_retrieval"
+            if state["question_type"] == "kg_rag":
+                return "kg_retrieval"
             elif state["question_type"] == "standard_rag":
                 return "standard_retrieval"
             else:  # no_rag
@@ -146,7 +146,7 @@ Answer:"""
         # Add nodes
         graph.add_node("router", route_question)
         graph.add_node("standard_retrieval", retrieve_standard)
-        graph.add_node("hybrid_retrieval", retrieve_hybrid)
+        graph.add_node("kg_retrieval", retrieve_kg)
         graph.add_node(
             "no_retrieval",
             lambda x: {"context": "No context provided - using model knowledge"},
@@ -160,14 +160,14 @@ Answer:"""
             route_by_question_type,
             {
                 "standard_retrieval": "standard_retrieval",
-                "hybrid_retrieval": "hybrid_retrieval",
+                "kg_retrieval": "kg_retrieval",
                 "no_retrieval": "no_retrieval",
             },
         )
 
         # Connect retrieval nodes to appropriate answer generators
         graph.add_edge("standard_retrieval", "answer_with_context")
-        graph.add_edge("hybrid_retrieval", "answer_with_context")
+        graph.add_edge("kg_retrieval", "answer_with_context")
         graph.add_edge("no_retrieval", "answer_no_context")
 
         # Connect answer generators to end

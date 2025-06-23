@@ -2,6 +2,18 @@ import re
 import string
 from collections import Counter
 from typing import Tuple
+from sentence_transformers import SentenceTransformer
+import torch
+from sklearn.metrics.pairwise import cosine_similarity
+
+if not hasattr(torch, "get_default_device"):
+
+    def get_default_device():
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    torch.get_default_device = get_default_device
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 def normalize_answer(s: str) -> str:
@@ -65,3 +77,11 @@ def exact_match_score(prediction: str, ground_truth: str) -> bool:
     Returns boolean indicating if answers match exactly after normalization
     """
     return normalize_answer(prediction) == normalize_answer(ground_truth)
+
+
+def cosine_similarity_score(prediction: str, ground_truth: str) -> float:
+    embeddings = model.encode(
+        [normalize_answer(prediction), normalize_answer(ground_truth)],
+        convert_to_numpy=True,
+    )
+    return float(cosine_similarity([embeddings[0]], [embeddings[1]])[0][0])

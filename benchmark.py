@@ -47,6 +47,7 @@ def main():
     hotpotqa = load_hotpotqa_data(
         num_samples=args.num_samples, question_id=args.question_id
     )
+
     questions = hotpotqa["question"]
     answers = hotpotqa["answer"]
     supporting_sentences = []
@@ -55,7 +56,10 @@ def main():
         for title, sent_id in zip(facts["title"], facts["sent_id"]):
             if title in contex["title"]:
                 idx = contex["title"].index(title)
-                sentence = contex["sentences"][idx][sent_id]
+                try:
+                    sentence = contex["sentences"][idx][sent_id]
+                except IndexError:
+                    continue
                 supporting_sentences_for_question.append(sentence)
         supporting_sentences.append(supporting_sentences_for_question)
 
@@ -93,6 +97,16 @@ def main():
             ),
             "avg_exact_match": weighted_avg(
                 old_metrics["avg_exact_match"], metrics["avg_exact_match"]
+            ),
+            "avg_precision": weighted_avg(
+                old_metrics["avg_precision"],
+                metrics["avg_precision"],
+            ),
+            "avg_similarity": weighted_avg(
+                old_metrics["avg_similarity"], metrics["avg_similarity"]
+            ),
+            "avg_recall": weighted_avg(
+                old_metrics["avg_recall"], metrics["avg_recall"]
             ),
             "avg_retrieval_precision": weighted_avg(
                 old_metrics["avg_retrieval_precision"],
