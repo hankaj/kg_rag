@@ -1,6 +1,6 @@
 # Knowledge Graph QA System
 
-This repository contains the codebase developed for the master's thesis **"Knowledge Graphs for Retrieval-Augmented Generation"**, authored by *Hanna Jarlaczyńska* at *AGH University of Science and Technology*.
+This repository contains the codebase developed for the master's thesis **"Knowledge Graphs for Retrieval-Augmented Generation"**, authored by *Hanna Jarlaczyńska* at *AGH University of Krakow*.
 
 
 ## Overview
